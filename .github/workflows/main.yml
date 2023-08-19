@@ -10,5 +10,5 @@ jobs:
       - name: Test & Report
         run: |
           echo okkk
-          tree .
+          ls -la
           # rover test --path $PATH_TO_TASK --move-files $STUDENT_REPO --report-to manytask
