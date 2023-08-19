@@ -1,0 +1,14 @@
+on: push
+jobs:
+  test:
+    name: Test solution and report results
+    runs-on: self-hosted
+    container: cr.yandex/crpn2tbct0clis87o7vk/ci-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Test & Report
+        run: |
+          echo okkk
+          tree .
+          # rover test --path $PATH_TO_TASK --move-files $STUDENT_REPO --report-to manytask
