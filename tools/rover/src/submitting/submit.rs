@@ -22,7 +22,7 @@ pub fn submit_problem(problem_path: &Path, message: &str) -> Result<()> {
         repo_path,
         "push",
         "--force",
-        "student",
+        "origin",
         &format!("HEAD:{}", problem.branch_name())
     ) {
         bail!("git push failed")
