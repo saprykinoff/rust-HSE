@@ -17,4 +17,5 @@ jobs:
           echo $GITHUB_ACTOR_ID
           echo $GITHUB_REF_NAME
           ls -la
+          pwd
           # rover test --path /opt/workspace/rust-hse/problems/$GITHUB_REF_NAME --move-files . --report-to manytask
