@@ -1,6 +1,8 @@
 #![allow(clippy::needless_question_mark)]
 
-use super::{command::Command, context::CommandContext, step::Step, toolchain::Toolchain};
+use super::{
+    command::Command, context::CommandContext, step::Step, toolchain::Toolchain,
+};
 use anyhow::{Context, Result};
 use glob::{glob_with, MatchOptions};
 use serde_yaml::{from_reader, Value};
@@ -21,7 +23,8 @@ pub struct Config {
 impl Config {
     pub fn from_yml(path: &Path) -> Result<Self> {
         let file = File::open(path).context("no yml file with config")?;
-        let yml: Value = from_reader(file).context("unable to read yml file with config")?;
+        let yml: Value =
+            from_reader(file).context("unable to read yml file with config")?;
         let yml = yml.as_mapping().context("the yml is not a mapping")?;
         let workdir = path.parent().context("yml has no parent")?.to_path_buf();
         let toolchain = Toolchain::from_name(
@@ -33,7 +36,9 @@ impl Config {
             .as_sequence()
             .context("user files are not in a list")?
             .iter()
-            .map(|value| Ok(value.as_str().context("user file path is not a string")?))
+            .map(|value| {
+                Ok(value.as_str().context("user file path is not a string")?)
+            })
             .collect::<Result<Vec<_>>>()?;
         let (relative_user_files, absolute_user_files) =
             Self::get_matching_user_files(&workdir, patterns.as_slice())?;
@@ -50,7 +55,25 @@ impl Config {
                     .as_sequence()
                     .context("the step commands are not a sequence")?
                     .iter()
-                    .map(|value| Command::from_name(value.as_str().unwrap()).unwrap())
+                    .flat_map(|value| {
+                        let mut cmds =
+                            vec![Command::from_name(value.as_str().unwrap())
+                                .unwrap()];
+
+                        if let Some(validate) = match cmds[0] {
+                            Command::CargoTest => {
+                                Some(Command::CargoTestValidate)
+                            }
+                            Command::CargoTestDebug => {
+                                Some(Command::CargoTestDebugValidate)
+                            }
+                            _ => None,
+                        } {
+                            cmds.push(validate);
+                        }
+
+                        cmds
+                    })
                     .collect();
                 Ok(Step::new(name, commands))
             })
@@ -100,10 +123,13 @@ impl Config {
         for pattern in patterns {
             let pattern = workdir.join(pattern).to_path_buf();
             let pattern = pattern.to_str().context("non-utf-8 path")?;
-            for entry in glob_with(pattern, options).context("pattern is invalid")? {
+            for entry in
+                glob_with(pattern, options).context("pattern is invalid")?
+            {
                 let entry = entry?;
                 absolute_user_files.push(entry.clone());
-                relative_user_files.push(entry.iter().skip(workdir_len).collect());
+                relative_user_files
+                    .push(entry.iter().skip(workdir_len).collect());
             }
         }
         Ok((relative_user_files, absolute_user_files))

@@ -1,6 +1,6 @@
 use super::config::Config;
 use super::repo::PROBLEMS_FOLDER;
-use crate::{launch_git, repository::copying::copy_files};
+use crate::{launch_git, repository::{copying::copy_files, toolchain::Toolchain}};
 use anyhow::{bail, Result};
 use colored::Colorize;
 use std::{
@@ -57,6 +57,11 @@ impl Problem {
         for step in config.get_steps() {
             println!("{:>12} {}", "Step".green().bold(), step.name());
             for command in step.commands() {
+                let toolchain = if command.needs_nightly_toolchain() {
+                    &Toolchain::Nightly
+                } else {
+                    toolchain
+                };
                 println!(
                     "{:>12} {command:?} (toolchain {toolchain:?})",
                     "Running cmd".green().bold()

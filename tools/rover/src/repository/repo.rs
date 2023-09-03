@@ -5,12 +5,6 @@ use std::path::{Path, PathBuf};
 
 pub const COMPOSE_CONFIG: &str = "compose.yml";
 pub const PROBLEMS_FOLDER: &str = "problems";
-pub const REPOSITORY_NAMES: [&str; 4] = [
-    "rust-hse",
-    "rust-hse-2023",
-    "private-rust-hse",
-    "private-rust-hse-2023",
-];
 
 pub struct Repository {
     path: PathBuf,
@@ -18,22 +12,17 @@ pub struct Repository {
 
 impl Repository {
     pub fn from_path(path: &Path) -> Result<Self> {
-        let canon_path = path
+        let mut canon_path = path
             .canonicalize()
             .context("cannot canonicalize path for repository")?;
-        let comps = canon_path.components().collect::<Vec<_>>();
-        let prefix_count = comps.into_iter().rposition(|comp| {
-            REPOSITORY_NAMES
-                .iter()
-                .any(|name| *name == comp.as_os_str())
-        });
-        if let Some(pos) = prefix_count {
-            Ok(Self {
-                path: canon_path.iter().take(pos + 1).collect(),
-            })
-        } else {
-            bail!("path does not contain course repository")
+        while !canon_path.join(PROBLEMS_FOLDER).exists() {
+            if !canon_path.pop() {
+                bail!("path {path:?} does not contain course repository")
+            }
         }
+        Ok(Self {
+            path: canon_path,
+        })
     }
 
     pub fn problem_from_path(&self, path: &Path) -> Result<Problem> {

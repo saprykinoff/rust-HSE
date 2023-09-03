@@ -32,26 +32,26 @@ impl ReportType {
                 if env::var("SKIP_REPORT").is_ok() {
                     return Ok(());
                 }
-                let task_name = env::var("CI_COMMIT_REF_NAME")
-                    .context("no CI_COMMIT_REF_NAME variable")?
+                let task_name = env::var("GITHUB_REF_NAME")
+                    .context("no GITHUB_REF_NAME variable")?
                     .split('/')
                     .nth(1)
-                    .context("CI_COMMIT_REF_NAME does not contain '/' symbol")?
+                    .context("GITHUB_REF_NAME does not contain '/' symbol")?
                     .to_owned();
-                let user_id = env::var("GITLAB_USER_ID").context("no GITLAB_USER_ID variable")?;
+                let user_id = env::var("GITHUB_ACTOR_ID").context("no GITLAB_USER_ID variable")?;
                 let tester_token = env::var("TESTER_TOKEN").context("no TESTER_TOKEN variable")?;
                 let client = Client::new();
                 for _ in 0..MANYTASK_RETRIES {
                     let mut data = Form::new()
                         .text("user_id", user_id.clone())
-                        .text("task", task_name.clone())
-                        .text("token", tester_token.clone());
+                        .text("task", task_name.clone());
                     if failed {
                         data = data.text("failed", "1");
                     }
                     let mut response = client
                         .post(MANYTASK_URL)
                         .multipart(data)
+                        .header("Authorization", tester_token.clone())
                         .send()
                         .context("post report to manytask")?;
                     let mut body = String::new();

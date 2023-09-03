@@ -12,7 +12,9 @@ pub enum Command {
     CargoFmt,
     CargoClippy,
     CargoTest,
+    CargoTestValidate,
     CargoTestDebug,
+    CargoTestDebugValidate,
     CargoMiriTest,
     CargoCompileTestMiniFrunk,
     CargoCompileTestOrm,
@@ -51,6 +53,10 @@ impl Command {
         })
     }
 
+    pub fn needs_nightly_toolchain(&self) -> bool {
+        matches!(self, Self::CargoTestValidate | Self::CargoTestDebugValidate)
+    }
+
     pub fn get_shell_line(&self) -> Result<String> {
         Ok(match self {
             Self::ForbidUnsafe => bail!("no shell line for ForbidUnsafe"),
@@ -58,10 +64,12 @@ impl Command {
             Self::ForbidStd => bail!("no shell line for ForbidStd"),
             Self::CargoFmt => "cargo fmt --check".to_string(),
             Self::CargoClippy => "cargo clippy --release -- -D warnings".to_string(),
-            Self::CargoTest => {
+            Self::CargoTest => "cargo test --release".to_string(),
+            Self::CargoTestValidate => {
                 "cargo test --release -- -Z unstable-options --format json".to_string()
             }
-            Self::CargoTestDebug => "cargo test -- -Z unstable-options --format json".to_string(),
+            Self::CargoTestDebug => "cargo test".to_string(),
+            Self::CargoTestDebugValidate => "cargo test -- -Z unstable-options --format json".to_string(),
             Self::CargoMiriTest => "cargo miri test --release".to_string(),
             Self::CargoCompileTestMiniFrunk => bail!("no shell line for CargoCompileTestMiniFrunk"),
             Self::CargoCompileTestOrm => bail!("no shell line for CargoCompileTestOrm"),
@@ -72,14 +80,14 @@ impl Command {
 
     pub fn cmd_stdout(&self) -> Stdio {
         match self {
-            Self::CargoTest | Self::CargoTestDebug => Stdio::piped(),
+            Self::CargoTestValidate | Self::CargoTestDebugValidate => Stdio::piped(),
             _ => Stdio::inherit(),
         }
     }
 
     pub fn wait(&self, process: &mut std::process::Child) -> Result<CommandStatus> {
         match self {
-            Self::CargoTest | Self::CargoTestDebug => {
+            Self::CargoTestValidate | Self::CargoTestDebugValidate => {
                 let stdout = process
                     .stdout
                     .as_mut()

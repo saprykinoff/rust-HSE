@@ -111,7 +111,11 @@ impl Toolchain {
         })
     }
 
-    pub fn run_command(&self, command: &Command, context: &CommandContext) -> Result<()> {
+    pub fn run_command(
+        &self,
+        command: &Command,
+        context: &CommandContext,
+    ) -> Result<()> {
         match command {
             Command::ForbidUnsafe => {
                 for file in context.get_user_files() {
@@ -138,7 +142,9 @@ impl Toolchain {
                         let line = line.context("error reading file line")?;
                         for pattern in FORBID_COLLECTIONS_PATTERNS {
                             if line.contains(pattern) {
-                                bail!(format!("file {file:?} contains line '{pattern}'"))
+                                bail!(format!(
+                                    "file {file:?} contains line '{pattern}'"
+                                ))
                             }
                         }
                     }
@@ -263,6 +269,12 @@ impl Toolchain {
             | Command::CargoTestDebug
             | Command::PythonTest
             | Command::CargoMiriTest => {
+                launch!(self, command, context)
+            }
+            Command::CargoTestValidate | Command::CargoTestDebugValidate => {
+                if !matches!(self, Self::Nightly) {
+                    bail!("Command {command:?} requires nightly toolchain");
+                }
                 launch!(self, command, context)
             }
         }
