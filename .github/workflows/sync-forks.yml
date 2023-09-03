@@ -3,7 +3,7 @@ jobs:
   sync:
     runs-on: self-hosted
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: getsentry/action-github-app-token@v2
         id: app-token
         with:
           app_id: ${{ vars.CURIC_APP_ID }}
