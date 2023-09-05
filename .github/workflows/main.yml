@@ -1,4 +1,7 @@
-on: push
+on:
+  push:
+    branches-ignore: main
+    
 jobs:
   test:
     name: Test solution and report results
