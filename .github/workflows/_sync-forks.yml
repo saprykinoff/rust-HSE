@@ -10,12 +10,13 @@ jobs:
           private_key: ${{ secrets.CURIC_PRIVATE_KEY }}
       - name: List forks
         run: |
-          forks=$(curl -v -L \
+          forks=$(curl -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
             https://api.github.com/repos/rust-hse/rust-hse-2023/forks)
-          echo $forks
+
           forks=$(echo $forks | jq -r '.[] | .name')
+          echo "Found forks:"
           echo $forks
 
           # Iterate over forks and start sync processes
