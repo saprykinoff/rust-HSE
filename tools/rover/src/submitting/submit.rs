@@ -6,7 +6,7 @@ use std::{path::Path, process};
 
 const MANYTASK_URL: &str = "https://раст-хсе.рф/";
 const SCOREBOARD_URL: &str = "https://раст-хсе.рф/scoreboard";
-const PIPELINES_URL: &str = "https://раст-хсе.рф/repo/pipelines";
+const ACTIONS_URL: &str = "https://раст-хсе.рф/repo/actions";
 
 pub fn submit_problem(problem_path: &Path, message: &str) -> Result<()> {
     let repo = Repository::from_path(problem_path)?;
@@ -28,13 +28,13 @@ pub fn submit_problem(problem_path: &Path, message: &str) -> Result<()> {
         bail!("git push failed")
     }
     printdoc! {"
-        Check results here:   {pipelines_url}
+        Check results here:   {actions_url}
 
         Other useful links:
           Course page:        {course_url}
           Scoreboard sheet:   {scoreboard_url}
         ",
-        pipelines_url = PIPELINES_URL.bold(),
+        actions_url = ACTIONS_URL.bold(),
         course_url = MANYTASK_URL.bold(),
         scoreboard_url = SCOREBOARD_URL.bold(),
     };
