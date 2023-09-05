@@ -19,25 +19,17 @@ jobs:
           echo "Found forks:"
           echo $forks
 
-          # Iterate over forks and start sync processes
+          # Iterate over forks and sync
           while IFS= read -r repo; do
-            echo "Syncing $repo"
+            echo "Syncing $repo"  
             curl -L -X POST \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
               https://api.github.com/repos/rust-hse/$repo/merge-upstream \
-              -d '{"branch":"main"}' &
+              -d '{"branch":"main"}'
+            if [ $? -eq 0 ]; then
+                echo "Sync for $repo succeeded!"
+            else
+                echo "Sync for $repo failed :("
+            fi
           done <<< "$forks"
-
-          # Wait for all background processes to complete and capture their exit statuses
-          fail=0
-          for job in $(jobs -p); do
-              wait $job || let "fail+=1"
-          done
-          
-          # Check if any background processes failed
-          if [ "$fail" -ne 0 ]; then
-              echo "Failed to process $fail forks"
-          else
-              echo "All forks synced!"
-          fi
