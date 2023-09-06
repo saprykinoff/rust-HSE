@@ -56,7 +56,8 @@
 
      1. В терминале запустите команду `gh auth login` и следуйте инструкциям.
         Отвечайте на вопросы как на этом скриншоте:
-        ![gh auth login result](./.md_assets/gh_auth_login.png)
+
+        ![gh auth login result](https://rust-hse.ru/static/gh_auth_login.png)
 
    - SSH:
 
@@ -97,7 +98,7 @@
 1. Склонируйте cвой репозиторий с задачами.
    Для этого найдите адрес репозитория:
 
-   ![github repo clone](./.md_assets/gh_clone_url.png)
+   ![github repo clone](https://rust-hse.ru/static/gh_clone_url.png)
 
    Какой выбрать адрес, зависит от того, как вы настроили git на предыдущем шаге:
 
