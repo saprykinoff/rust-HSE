@@ -1,13 +1,16 @@
-# Rust HSE 2022
-
-[[_TOC_]]
+# Rust HSE 2023
 
 ## Ссылки
 
+### Основное
+
+- Сайт курса: [раст-хсе.рф](https://раст-хсе.рф) или [rust-hse.ru](https://rust-hse.ru)
+- Таблица с результатами сдачи задач: https://docs.google.com/spreadsheets/d/1R02622hEAEfSdK18Ng6BFx6Nxham8qMohZH8whE2Gls/edit#gid=0
+
 ### Коммуникация
 
-- Телеграм канал: <https://t.me/rust_hse>.
-- Телеграм чат: <https://t.me/+_W26qd8Esi84NjFi>.
+- Телеграм канал: TBD.
+- Телеграм чат: TBD.
 
 ### Материалы
 
@@ -17,59 +20,110 @@
 
 ## Настройка окружения
 
-### Регистрация в системе
+Вся работа с курсом организована на GitHub, у Вас будет собственный репозиторий для решения задач, а также простенький UI [раст-хсе.рф](https://раст-хсе.рф) для просмотра задач, дедлайнов и т.п.
 
-1. Зарегистрируйтесь в [тестирующей системе](https://раст-хсе.рф). Секретный код: `safeguard`.
-1. Сгенерируйте ssh ключ, если у вас его еще нет.
+Для начала работы с курсом проследуйте инструкциям ниже. При любых трудностях обращайтесь в телеграм чат курса.
 
-	```
-	ssh-keygen -N "" -f ~/.ssh/id_rsa
-	```
+### Регистрация в системе [раст-хсе.рф](https://раст-хсе.рф)
 
-1. Скопируйте содержимое файла id_rsa.pub (`cat ~/.ssh/id_rsa.pub`) в https://gitlab.com/-/profile/keys
-1. Проверьте, что ssh ключ работает. Выполните команду `ssh git@gitlab.com`. Вы должны увидеть такое приветствие:
+1. Зарегистрируйтесь в [тестирующей системе](https://раст-хсе.рф). Для входа Вам потребуется аккаунт на [GitHub](github.com). Секретный код: `krusty-krab`. 
 
-	```sh
-	$ ssh git@gitlab.com
-	PTY allocation request failed on channel 0
-	Welcome to GitLab, @<your name>!
-	Connection to gitlab.com closed.
-	```
+1. После регистрации автоматика добавит Вас в GitHub организацию [rust-hse](https://github.com/rust-hse) и создаст там для Вас копию репозитория с задачами [rust-hse/rust-hse-2023](https://github.com/rust-hse/rust-hse-2023).
 
-### Настройка репозитория
+### Настройка Git
 
-1. Склонируйте репозиторий с задачами.
+Чтобы работать с git-репозиториями, вам нужно установить и настроить git на своем компьютере, а также аутентифицироваться в GitHub.
+Пошаговая инструкция ниже.
+Либо Вы можете проследовать инструкции от GitHub: [Set up Git](https://docs.github.com/en/get-started/quickstart/set-up-git).
 
-   ```sh
-   git clone git@gitlab.com:rust-hse-tasks/rust-hse.git
-   ```
+Если Вы регулярно работаете с git и GitHub-ом, то скорее всего у Вас все настроено, Вы можете пропустить эти шаги и перейти к шагу клонирования репозитория.
 
-   Команда `git clone` создаст директорию `rust-hse` и запишет туда все файлы из этого репозитория.
+1. Установите git: https://git-scm.com/downloads
 
-1. Каждую неделю после занятий вам надо будет обновлять репозиторий, чтобы у вас появились условия
-   новых задач:
-
-   ```sh
-   git pull --rebase
-   ```
-
-1. Для отправки решения на сервер, необходимо, чтобы у вас были заданы имя и email в git:
+1. Задайте имя и email (желательно тот же, что вы использовали при регистрации на GitHub):
 
    ```sh
    git config --global user.name "Ivan Ivanov"
    git config --global user.email ivan1337@yandex.ru
    ```
 
-1. Откройте страницу своего репозитория в браузере. Перейдите по ссылке MY REPO на [странице с задачами](https://раст-хсе.рф).
-1. Добавьте в git свой приватный репозиторий. Для этого запустите из директории репозитория команду:
+1. Аутентифицируйтесь в GitHub. Тут есть несколько вариантов как это сделать. Опишем два из них: через [GitHub CLI](https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git#github-cli) (рекомендуемый GitHub-ом) и через [SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
 
-	```
-	git remote add student $ADDRESS
-	```
+   - GitHub CLI:
 
-   `$ADDRESS` нужно скопировать со страницы репозитория.
-   Синяя кнопка Clone -> Clone with SSH.
-   Адрес должен быть вида `git@gitlab.com:rust-hse-fall-2022/<your gitlab username>.git`
+     1. Установите GitHub CLI: https://github.com/cli/cli#installation.
+
+     1. В терминале запустите команду `gh auth login` и следуйте инструкциям.
+        Отвечайте на вопросы как на этом скриншоте:
+        ![gh auth login result](./.md_assets/gh_auth_login.png)
+
+   - SSH:
+
+     1. Сгенерируйте ssh ключ, если у Вас его еще нет (см. `~/.ssh`).
+
+        ```
+        ssh-keygen -t ed25519 -C "<your email>"
+        ```
+
+     1. Скопируйте сгенерированный публичный ключ.
+
+        ```
+        cat ~/.ssh/id_ed25519.pub
+        ```
+
+     1. Перейдите в настройки аккаунта, в раздел SSH ключей https://github.com/settings/keys.
+
+     1. Нажмите `Add SSH key`.
+
+     1. Заполните Title (чем угодно), в поле Key вставьте скопированный публичный ключ. Нажмите `Add SSH key`.
+
+     1. Проверьте, что ssh ключ работает. Выполните команду `ssh -T git@github.com`.
+        Вы должны увидеть такое приветствие:
+
+        ```
+        $ ssh -T git@github.com
+        Hi <your login>! You've successfully authenticated, but GitHub does not provide shell access.
+        ```
+
+### Клонирование репозитория на компьютер
+
+В [нашей GitHub огранизации](https://github.com/orgs/rust-hse/repositories) Вам будут доступны два репозитория: публичный `rust-hse-2023` и Ваш личный `rust-hse-2023-<your login>`.
+Для сдачи задач Вы будете работать со своим личным репозиторием.
+
+1. Передите на страницу своего репозитория (если вы не читаете эту инструкцию уже с него).
+   Его можно найти на [раст-хсе.рф](https://раст-хсе.рф), перейдя по ссылке `MY REPO`, или на странице репозиториев организации: https://github.com/orgs/rust-hse/repositories.
+
+1. Склонируйте cвой репозиторий с задачами.
+   Для этого найдите адрес репозитория:
+
+   ![github repo clone](./.md_assets/gh_clone_url.png)
+
+   Какой выбрать адрес, зависит от того, как вы настроили git на предыдущем шаге:
+
+   - Если вы использовали GitHub CLI, то попробуйте выполнить
+
+     ```
+     $ git clone https://github.com/rust-hse/rust-hse-2023-<your login>.git
+     ```
+
+     или
+
+     ```
+     $ gh repo clone rust-hse/rust-hse-2023-<your login>
+     ```
+
+   - Если вы добавляли SSH ключ, то может сработать git-адрес:
+
+     ```
+     $ ssh git@github.com:rust-hse/rust-hse-2023-<your login>.git
+     ```
+
+1. Каждую неделю после занятий вам надо будет обновлять репозиторий, чтобы у вас появились условия
+   новых задач:
+
+   ```sh
+   $ git pull --rebase
+   ```
 
 ### Настройка IDE
 
@@ -99,10 +153,10 @@
 1. Откройте `tutorial/add/src/lib.rs`. Убедитесь, что у вас работают базовые вещи: подсветка ошибок компиляции, autocomplete, go to definition.
 1. Откройте `tutorial/add/tests/tests.rs`. Нажмите `Debug` над `fn it_works()`, убедитесь, что тест падает и вы оказываетесь в дебагере в момент его падения.
 1. Напишите правильную реализацию функции `add` в `tutorial/add/src/lib.rs`.
-1. Установите утилиту `rover` для тестирования и отправки решений на сервер командой `cargo install --path tools/rover`.
+1. Установите утилиту `rover` для тестирования и отправки решений на сервер командой `cargo install --path tools/rover` (запускайте из корня репозитория).
 1. Запустите локальные тесты командой `rover test`, находясь в директории `tutorial/add`. Убедитесь, что они проходят.
 1. Отправьте своё решение на сервер командой `rover submit`. Ваш сабмит должен появиться по ссылке "SUBMITS" на [раст-хсе.рф](https://раст-хсе.рф).
 После успешного прохождения тестов вам должно начислиться 0 баллов в
 [таблице с баллами](https://docs.google.com/spreadsheets/d/1R02622hEAEfSdK18Ng6BFx6Nxham8qMohZH8whE2Gls/edit#gid=0).
 
-Если на каком-то этапе у вас возникли проблемы - пишите в [чат](https://t.me/+_W26qd8Esi84NjFi) курса.
+Если на каком-то этапе у вас возникли проблемы - пишите в чат курса.
