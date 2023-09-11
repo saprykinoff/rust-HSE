@@ -13,7 +13,7 @@ jobs:
           forks=$(curl -L \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
-            https://api.github.com/repos/rust-hse/rust-hse-2023/forks)
+            https://api.github.com/repos/rust-hse/rust-hse-2023/forks?per_page=100)
 
           forks=$(echo $forks | jq -r '.[] | .name')
           echo "Found forks:"
