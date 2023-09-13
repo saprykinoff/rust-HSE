@@ -1,8 +1,10 @@
 #![forbid(unsafe_code)]
 
-fn is_prime(n:u32) -> bool {
+fn is_prime(n: u32) -> bool {
     for i in 2..(n as f64).sqrt() as u32 + 1 {
-        if n % i == 0 {return false;}
+        if n % i == 0 {
+            return false;
+        }
     }
     true
 }
