@@ -9,7 +9,7 @@ pub fn get_n_prime_numbers(n: u32) -> Vec<u32> {
             for j in (i * i..n).step_by(usize::try_from(n + 1).unwrap()) {
                 sieve[j as usize] = 0;
             }
-        }s
+        }
     }
     ans
 }
