@@ -3,13 +3,13 @@
 pub fn is_correct_bracket_sequence(s: &str) -> bool {
     let mut stack = Vec::new();
     for ch in s.chars() {
-        if (ch == '(' || ch == '{' || ch == '[') {
+        if ch == '(' || ch == '{' || ch == '[' {
             stack.push(ch);
         } else {
             let lst = stack.pop();
-            if (ch == ')' && lst == Some('(')
+            if ch == ')' && lst == Some('(')
                 || ch == ']' && lst == Some('[')
-                || ch == '}' && lst == Some('{'))
+                || ch == '}' && lst == Some('{')
             {
             } else {
                 return false;
@@ -17,5 +17,5 @@ pub fn is_correct_bracket_sequence(s: &str) -> bool {
         }
     }
 
-    return stack.len() == 0;
+    stack.is_empty()
 }
