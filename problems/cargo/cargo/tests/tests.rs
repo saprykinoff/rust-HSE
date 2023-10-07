@@ -1,8 +1,9 @@
-use cargo::config::{get_game, GameConfig};
+// use cargo::config::{get_game, GameConfig};
 use cargo::play_games;
-use cargo::r#trait::{FairRound, Round, UnfairRound};
+// use cargo::r#trait::{FairRound, Round, UnfairRound};
 
 use std::io::Read;
+use std::path::PathBuf;
 
 fn check_test(test_name: &str, test_data: &serde_json::Value) {
     let input_data: &Vec<serde_json::Value> = test_data.get("input").unwrap().as_array().unwrap();
@@ -36,7 +37,9 @@ fn check_test(test_name: &str, test_data: &serde_json::Value) {
 
 #[test]
 fn it_works() {
-    let mut file = std::fs::File::open("./tests/tests.json").unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut file = std::fs::File::open(root.join("tests/tests.json")).unwrap();
+    // let mut file = std::fs::File::open("./tests/my_test.json").unwrap();
     let mut data = String::new();
     file.read_to_string(&mut data).unwrap();
     let json: serde_json::Value = serde_json::from_str(&data).expect("JSON was not well-formatted");
