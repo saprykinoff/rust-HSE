@@ -1,6 +1,6 @@
-// use cargo::config::{get_game, GameConfig};
+use cargo::config::{get_game, GameConfig};
 use cargo::play_games;
-// use cargo::r#trait::{FairRound, Round, UnfairRound};
+use cargo::r#trait::{FairRound, Round, UnfairRound};
 
 use std::io::Read;
 use std::path::PathBuf;

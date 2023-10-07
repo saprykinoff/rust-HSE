@@ -2,7 +2,7 @@
 
 pub mod r#trait;
 use r#trait::{FairRound, Round, UnfairRound};
-mod config;
+pub mod config;
 mod games;
 use config::{get_game, GameConfig};
 type Game = Box<dyn Round>;
