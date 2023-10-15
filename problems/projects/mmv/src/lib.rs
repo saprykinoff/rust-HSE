@@ -18,7 +18,7 @@ pub fn insert_data(filename: &str, regex: &str, out : &str) -> Result<String, My
     ans.push_str(&strings[0]);
     for i in 1.. strings.len() {
         if placeholders[i - 1] > data.len() {
-            return Err(MyError::UnexpextedAmountOfPlaceholders(data.len(), placeholders[i - 1]));
+            return Err(MyError::UnexpectedAmountOfPlaceholders(data.len(), placeholders[i - 1]));
         }
         ans.push_str(& data[placeholders[i - 1] - 1]);
         ans.push_str(&strings[i]);
@@ -28,18 +28,27 @@ pub fn insert_data(filename: &str, regex: &str, out : &str) -> Result<String, My
     Ok(ans)
 }
 
-fn mass_move(template: &str, out: &str, force: bool) ->Result<(), MyError> {
+fn output(s: &str) {
+    print!("{}", s);
+}
+
+pub fn mass_move(template: &str, out: &str, force: bool) ->Result<(), MyError> {
     let (dir_name, file_name) = split_dir_file(template);
-    let regex = build_regex(&file_name);
+    let regex = build_regex(&template);
     let files = get_matched_filenames(&dir_name, &regex);
+    if files.is_empty() {
+        return Err(MyError::NoSuchFiles);
+    }
     for file in files {
         let filename = file.into_os_string().into_string().unwrap();
         let new_filename = insert_data(&filename, &regex, out)?;
-
+        output(&format!("Moving \"{filename}\" -> \"{new_filename}\" ..."));
 
         if !move_file(&filename, &new_filename, force) {
-            Err(MyError::FileExists(filename, new_filename))
+            output("\n");
+            return Err(MyError::FileExists(filename, new_filename));
         }
+        output("Ok\n");
     }
 
     Ok(())

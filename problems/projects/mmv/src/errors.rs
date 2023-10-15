@@ -12,7 +12,8 @@ pub enum MyError {
     ParseError(ParseError),
     RegexError(regex::Error),
     FileExists(String, String),
-    UnexpextedAmountOfPlaceholders(usize, usize)
+    UnexpectedAmountOfPlaceholders(usize, usize),
+    NoSuchFiles,
 }
 
 impl From<regex::Error> for MyError {

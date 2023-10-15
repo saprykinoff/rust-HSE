@@ -7,7 +7,7 @@ use crate::errors::*;
 
 pub fn build_regex(template: &str) -> String {
     //builds correct regex from input template
-    let mut ans = String::new();
+    let mut ans = String::from('^');
     for ch in template.chars() {
         match ch {
             '*' => {
@@ -26,6 +26,7 @@ pub fn build_regex(template: &str) -> String {
             }
         }
     }
+    ans.push('$');
     ans
 }
 
@@ -35,11 +36,10 @@ pub fn select_data(regex: &str, filename: &str) -> Vec<String> {
     //Return MyError::RegexError::NoMatch if filename doesn't match with template
     //Otherwise return Vec of this data
     let mut ans = Vec::new();
-    let re = Regex::new(regex)?;
+    let re = Regex::new(regex).unwrap();
 
-    let string_data = re.captures(filename).unwrap();
-    println!("{:?}", string_data);
-    println!("{:?}", string_data.len());
+    let captures = re.captures(filename);
+    let string_data = captures.unwrap();
     for i in 1..string_data.len() {
         ans.push(string_data.index(i).to_string());
     }
@@ -60,7 +60,7 @@ pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
         //TODO DONT WORKS WITH # IN FILENAMES
         if placeholder {
             if ch.is_ascii_digit() {
-                cur = 10 * cur + (ch as u32 - '0' as u32);
+                cur = 10 * cur + (ch as usize - '0' as usize);
                 continue
             } else {
                 if cur != 0 {
