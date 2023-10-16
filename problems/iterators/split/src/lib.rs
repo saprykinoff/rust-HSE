@@ -4,6 +4,7 @@
 pub struct SplitString {
     remainder: Option<&str>,
     delimiter: &str,
+
 }
 
 impl SplitString {
