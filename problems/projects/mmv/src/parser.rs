@@ -14,6 +14,7 @@ fn escape_char(my_char: char) -> bool {
     }
     false
 }
+
 pub fn build_regex(template: &str) -> String {
     //builds correct regex from input template
     let mut result = String::from('^');
@@ -60,13 +61,13 @@ pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
     strings.push(String::new());
 
     let mut placeholder = false;
-    let mut current_num:usize = 0;
+    let mut current_num: usize = 0;
     for char in out.chars() {
         //TODO DONT WORKS WITH # IN FILENAMES
         if placeholder {
             if char.is_ascii_digit() {
                 current_num = 10 * current_num + (char as usize - '0' as usize);
-                continue
+                continue;
             } else {
                 if current_num != 0 {
                     placeholders.push(current_num);
