@@ -5,6 +5,15 @@ use regex::Regex;
 use crate::errors::*;
 
 
+fn escape_char(my_char: char) -> bool {
+    let escape = r"\[]()^$.|?+/";
+    for escaped_char in escape.chars() {
+        if my_char == escaped_char {
+            return true;
+        }
+    }
+    false
+}
 pub fn build_regex(template: &str) -> String {
     //builds correct regex from input template
     let mut result = String::from('^');
@@ -13,8 +22,7 @@ pub fn build_regex(template: &str) -> String {
             '*' => {
                 result.push_str("(.*)");
             }
-            //TODO replace to smth like      char in "\\[]()..."
-            '\\' | '[' | ']' | '(' | ')' | '^' | '$' | '.' | '|' | '?' | '+' | '/' => {
+            char if escape_char(char) => {
                 result.push('\\');
                 result.push(char);
             }
