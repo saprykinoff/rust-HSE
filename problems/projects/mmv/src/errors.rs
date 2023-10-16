@@ -1,17 +1,17 @@
 #![allow(unused)]
 
+use std::path::PathBuf;
 use regex::Error;
 
-
 #[derive(Debug)]
-pub enum MyError {
+pub enum MassMoveError {
     RegexError(regex::Error),
-    FileExists(String, String),
-    UnexpectedAmountOfPlaceholders(usize, usize),
-    NoSuchFiles,
+    FileAlreadyExists(PathBuf, PathBuf),
+    TemplateMismatch(usize, usize),
+    NoFilesFound,
 }
 
-impl From<regex::Error> for MyError {
+impl From<regex::Error> for MassMoveError {
     fn from(value: Error) -> Self {
         Self::RegexError(value)
     }

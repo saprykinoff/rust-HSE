@@ -1,7 +1,7 @@
+use regex::Regex;
+use scan_dir::ScanDir;
 use std::fs;
 use std::path::{Path, PathBuf};
-use scan_dir::ScanDir;
-use regex::Regex;
 
 pub fn split_directory_and_file_names(template: &str) -> (String, String) {
     let res = template.split_once('/');
@@ -28,7 +28,9 @@ pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {
 }
 
 pub fn move_file(from: &str, to: &str, force: bool) -> bool {
-    if from == to {return true}
+    if from == to {
+        return true;
+    }
     let write = (!Path::new(to).exists()) || force;
     if write {
         fs::rename(from, to);
