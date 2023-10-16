@@ -37,7 +37,7 @@ pub fn build_regex(template: &str) -> String {
 }
 
 
-pub fn select_data(regex: &str, filename: &str) -> Vec<String> {
+pub fn capture_regex_matches(regex: &str, filename: &str) -> Vec<String> {
     //Capture data from filenames according template.
     //Return MyError::RegexError::NoMatch if filename doesn't match with template
     //Otherwise return Vec of this data
