@@ -7,27 +7,24 @@ use crate::errors::*;
 
 pub fn build_regex(template: &str) -> String {
     //builds correct regex from input template
-    let mut ans = String::from('^');
-    for ch in template.chars() {
-        match ch {
+    let mut result = String::from('^');
+    for char in template.chars() {
+        match char {
             '*' => {
-                ans.push('(');
-                ans.push('.');
-                ans.push(ch);
-                ans.push(')');
+                result.push_str("(.*)");
             }
-            //TODO replace to smth like      ch in "\\[]()..."
+            //TODO replace to smth like      char in "\\[]()..."
             '\\' | '[' | ']' | '(' | ')' | '^' | '$' | '.' | '|' | '?' | '+' | '/' => {
-                ans.push('\\');
-                ans.push(ch);
+                result.push('\\');
+                result.push(char);
             }
             _ => {
-                ans.push(ch);
+                result.push(char);
             }
         }
     }
-    ans.push('$');
-    ans
+    result.push('$');
+    result
 }
 
 
@@ -35,15 +32,15 @@ pub fn select_data(regex: &str, filename: &str) -> Vec<String> {
     //Capture data from filenames according template.
     //Return MyError::RegexError::NoMatch if filename doesn't match with template
     //Otherwise return Vec of this data
-    let mut ans = Vec::new();
+    let mut result = Vec::new();
     let re = Regex::new(regex).unwrap();
 
     let captures = re.captures(filename);
     let string_data = captures.unwrap();
     for i in 1..string_data.len() {
-        ans.push(string_data.index(i).to_string());
+        result.push(string_data.index(i).to_string());
     }
-    ans
+    result
 }
 
 pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
@@ -55,17 +52,17 @@ pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
     strings.push(String::new());
 
     let mut placeholder = false;
-    let mut cur:usize = 0;
-    for ch in out.chars() {
+    let mut current_num:usize = 0;
+    for char in out.chars() {
         //TODO DONT WORKS WITH # IN FILENAMES
         if placeholder {
-            if ch.is_ascii_digit() {
-                cur = 10 * cur + (ch as usize - '0' as usize);
+            if char.is_ascii_digit() {
+                current_num = 10 * current_num + (char as usize - '0' as usize);
                 continue
             } else {
-                if cur != 0 {
-                    placeholders.push(cur);
-                    cur = 0;
+                if current_num != 0 {
+                    placeholders.push(current_num);
+                    current_num = 0;
                     strings.push(String::new());
                 } else {
                     strings.last_mut().unwrap().push('#');
@@ -73,16 +70,16 @@ pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
                 placeholder = false;
             }
         }
-        if ch == '#' {
+        if char == '#' {
             placeholder = true;
         } else {
-            strings.last_mut().unwrap().push(ch)
+            strings.last_mut().unwrap().push(char)
         }
     }
     if placeholder {
-        if cur != 0 {
-            placeholders.push(cur);
-            cur = 0;
+        if current_num != 0 {
+            placeholders.push(current_num);
+            current_num = 0;
             strings.push(String::new());
         } else {
             strings.last_mut().unwrap().push('#');

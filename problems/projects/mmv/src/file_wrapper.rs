@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use scan_dir::ScanDir;
 use regex::Regex;
 
-pub fn split_dir_file(template: &str) -> (String, String) {
+pub fn split_directory_and_file_names(template: &str) -> (String, String) {
     let res = template.split_once('/');
     if res.is_none() {
         (String::from(""), String::from(template))
@@ -11,13 +11,6 @@ pub fn split_dir_file(template: &str) -> (String, String) {
         let (a, b) = res.unwrap();
         (String::from(a), String::from(b))
     }
-}
-
-fn my_check(s: &str, regex: &str) ->bool {
-    let re = Regex::new(regex).unwrap();
-    let res = re.is_match(s);
-    println!("{s}, {regex}, {res}");
-    return res;
 }
 
 pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {

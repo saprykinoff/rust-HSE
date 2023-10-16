@@ -3,11 +3,10 @@
 pub mod parser;
 pub mod errors;
 pub mod file_wrapper;
-pub mod regex_wrapper;
 
 use parser::{parse_placeholders};
 use crate::errors::MyError;
-use crate::file_wrapper::{get_matched_filenames, move_file, split_dir_file};
+use crate::file_wrapper::{get_matched_filenames, move_file, split_directory_and_file_names};
 use crate::parser::{build_regex, select_data};
 
 pub fn insert_data(filename: &str, regex: &str, out : &str) -> Result<String, MyError> {
@@ -33,9 +32,9 @@ fn output(s: &str) {
 }
 
 pub fn mass_move(template: &str, out: &str, force: bool) ->Result<(), MyError> {
-    let (dir_name, file_name) = split_dir_file(template);
+    let (directory_name, file_name) = split_directory_and_file_names(template);
     let regex = build_regex(&template);
-    let files = get_matched_filenames(&dir_name, &regex);
+    let files = get_matched_filenames(&directory_name, &regex);
     if files.is_empty() {
         return Err(MyError::NoSuchFiles);
     }
@@ -45,7 +44,7 @@ pub fn mass_move(template: &str, out: &str, force: bool) ->Result<(), MyError> {
         output(&format!("Moving \"{filename}\" -> \"{new_filename}\" ..."));
 
         if !move_file(&filename, &new_filename, force) {
-            output("\n");
+            output("Err\n");
             return Err(MyError::FileExists(filename, new_filename));
         }
         output("Ok\n");
