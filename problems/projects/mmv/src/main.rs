@@ -1,6 +1,6 @@
+use clap::Parser;
 use mmv_lib;
 use mmv_lib::mass_move;
-use clap::Parser;
 
 /// Mass move utility analog on Rust
 #[derive(Parser, Debug)]
@@ -25,6 +25,4 @@ fn main() {
     if res.is_err() {
         println!("{:?}", res)
     }
-
-
 }
