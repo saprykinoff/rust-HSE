@@ -4,7 +4,6 @@ use std::ops::Index;
 
 /// Checks if [`checked_char`] should be escaped in regex
 fn escape_char(checked_char: char) -> bool {
-
     let escape = r"\[]()^$.|?+/";
     for escaped_char in escape.chars() {
         if checked_char == escaped_char {
@@ -17,7 +16,6 @@ fn escape_char(checked_char: char) -> bool {
 /// Builds regex that meet the [`file_pattern`] .
 /// Uses regex groups to capture data.
 pub fn build_regex(file_pattern: &str) -> String {
-
     let mut result = String::from('^');
     for char in file_pattern.chars() {
         match char {
@@ -41,7 +39,6 @@ pub fn build_regex(file_pattern: &str) -> String {
 /// Returns [`MassMoveError::CaptureRegexError`] if filename doesn't match with the [`regex`] template
 /// Otherwise returns Vec of matched groups
 pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>, MassMoveError> {
-
     let mut result = Vec::new();
     let re = Regex::new(regex)?;
 
@@ -56,7 +53,6 @@ pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>,
 /// Devides [`output_pattern`] by placeholders.
 /// Returns numbers of placeholder and splitted strings.
 pub fn parse_placeholders(output_template: &str) -> (Vec<usize>, Vec<String>) {
-
     let mut placeholders = Vec::new();
     let mut strings = Vec::new();
     strings.push(String::new());

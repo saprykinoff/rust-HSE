@@ -14,7 +14,6 @@ pub fn fill_in_output_pattern(
     regex: &str,
     output_template: &str,
 ) -> Result<String, MassMoveError> {
-
     let mut ans = String::new();
     let data = capture_regex_matches(regex, filename)?;
     let (placeholders, strings) = parse_placeholders(output_template);
@@ -41,7 +40,6 @@ pub fn mass_move(
     output_pattern: &str,
     force_mode: bool,
 ) -> Result<(), MassMoveError> {
-
     let (directory_name, _) = split_directory_and_file_names(input_pattern);
     let regex = build_regex(&input_pattern);
     let files = get_matched_filenames(&directory_name, &regex);
