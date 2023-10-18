@@ -7,13 +7,13 @@ use crate::file_wrapper::{get_matched_filenames, move_file, split_directory_and_
 use crate::parser::{build_regex, capture_regex_matches};
 use parser::parse_placeholders;
 
+/// Selects regex groups captures from [`filename`] using [`regex`]
+/// Fills in this captures in [`output_template`] and returns the result
 pub fn fill_in_output_pattern(
     filename: &str,
     regex: &str,
     output_template: &str,
 ) -> Result<String, MassMoveError> {
-    /// Selects regex groups captures from [`filename`] using [`regex`]
-    /// Fills in this captures in [`output_template`] and returns the result
 
     let mut ans = String::new();
     let data = capture_regex_matches(regex, filename)?;
@@ -34,13 +34,13 @@ pub fn fill_in_output_pattern(
     Ok(ans)
 }
 
+/// Moves all files that meet [`input_pattern`] into files according [`output_pattern`] with replacement of placeholders
+/// If [`force_mode`] is true overwrites existing files
 pub fn mass_move(
     input_pattern: &str,
     output_pattern: &str,
     force_mode: bool,
 ) -> Result<(), MassMoveError> {
-    /// Moves all files that meet [`input_pattern`] into files according [`output_pattern`] with replacement of placeholders
-    /// If [`force_mode`] is true overwrites existing files
 
     let (directory_name, _) = split_directory_and_file_names(input_pattern);
     let regex = build_regex(&input_pattern);

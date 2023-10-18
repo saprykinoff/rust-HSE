@@ -2,8 +2,8 @@ use crate::errors::*;
 use regex::Regex;
 use std::ops::Index;
 
+/// Checks if [`checked_char`] should be escaped in regex
 fn escape_char(checked_char: char) -> bool {
-    /// Checks if [`checked_char`] should be escaped in regex
 
     let escape = r"\[]()^$.|?+/";
     for escaped_char in escape.chars() {
@@ -14,9 +14,9 @@ fn escape_char(checked_char: char) -> bool {
     false
 }
 
+/// Builds regex that meet the [`file_pattern`] .
+/// Uses regex groups to capture data.
 pub fn build_regex(file_pattern: &str) -> String {
-    /// Builds regex that meet the [`file_pattern`] .
-    /// Uses regex groups to capture data.
 
     let mut result = String::from('^');
     for char in file_pattern.chars() {
@@ -37,10 +37,10 @@ pub fn build_regex(file_pattern: &str) -> String {
     result
 }
 
+/// Captures pattern matches from [`filename`].
+/// Returns [`MassMoveError::CaptureRegexError`] if filename doesn't match with the [`regex`] template
+/// Otherwise returns Vec of matched groups
 pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>, MassMoveError> {
-    /// Captures pattern matches from [`filename`].
-    /// Returns [`MassMoveError::CaptureRegexError`] if filename doesn't match with the [`regex`] template
-    /// Otherwise returns Vec of matched groups
 
     let mut result = Vec::new();
     let re = Regex::new(regex)?;
@@ -53,9 +53,9 @@ pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>,
     Ok(result)
 }
 
+/// Devides [`output_pattern`] by placeholders.
+/// Returns numbers of placeholder and splitted strings.
 pub fn parse_placeholders(output_template: &str) -> (Vec<usize>, Vec<String>) {
-    /// Devides [`output_pattern`] by placeholders.
-    /// Returns numbers of placeholder and splitted strings.
 
     let mut placeholders = Vec::new();
     let mut strings = Vec::new();
@@ -88,12 +88,10 @@ pub fn parse_placeholders(output_template: &str) -> (Vec<usize>, Vec<String>) {
     if placeholder {
         if current_num != 0 {
             placeholders.push(current_num);
-            current_num = 0;
             strings.push(String::new());
         } else {
             strings.last_mut().unwrap().push('#');
         }
-        placeholder = false;
     }
 
     (placeholders, strings)
