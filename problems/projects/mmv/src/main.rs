@@ -1,7 +1,4 @@
-#![allow(unused)]
-
 use mmv_lib;
-use mmv_lib::file_wrapper::get_matched_filenames;
 use mmv_lib::mass_move;
 
 fn main() {

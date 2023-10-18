@@ -1,24 +1,25 @@
-#![allow(unused)]
-
-use std::ops::Index;
-use regex::Regex;
 use crate::errors::*;
+use regex::Regex;
+use std::ops::Index;
 
+fn escape_char(checked_char: char) -> bool {
+    /// Checks if [`checked_char`] should be escaped in regex
 
-fn escape_char(my_char: char) -> bool {
     let escape = r"\[]()^$.|?+/";
     for escaped_char in escape.chars() {
-        if my_char == escaped_char {
+        if checked_char == escaped_char {
             return true;
         }
     }
     false
 }
 
-pub fn build_regex(template: &str) -> String {
-    //builds correct regex from input template
+pub fn build_regex(file_pattern: &str) -> String {
+    /// Builds regex that meet the [`file_pattern`] .
+    /// Uses regex groups to capture data.
+
     let mut result = String::from('^');
-    for char in template.chars() {
+    for char in file_pattern.chars() {
         match char {
             '*' => {
                 result.push_str("(.*)");
@@ -36,25 +37,25 @@ pub fn build_regex(template: &str) -> String {
     result
 }
 
+pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>, MassMoveError> {
+    /// Captures pattern matches from [`filename`].
+    /// Returns [`MassMoveError::CaptureRegexError`] if filename doesn't match with the [`regex`] template
+    /// Otherwise returns Vec of matched groups
 
-pub fn capture_regex_matches(regex: &str, filename: &str) -> Vec<String> {
-    //Capture data from filenames according template.
-    //Return MyError::RegexError::NoMatch if filename doesn't match with template
-    //Otherwise return Vec of this data
     let mut result = Vec::new();
-    let re = Regex::new(regex).unwrap();
+    let re = Regex::new(regex)?;
 
     let captures = re.captures(filename);
-    let string_data = captures.unwrap();
+    let string_data = captures.ok_or(MassMoveError::CaptureRegexError)?;
     for i in 1..string_data.len() {
         result.push(string_data.index(i).to_string());
     }
-    result
+    Ok(result)
 }
 
-pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
-
-    //splits filename to Vec of placeholders and Vec of string parts
+pub fn parse_placeholders(output_template: &str) -> (Vec<usize>, Vec<String>) {
+    /// Devides [`output_pattern`] by placeholders.
+    /// Returns numbers of placeholder and splitted strings.
 
     let mut placeholders = Vec::new();
     let mut strings = Vec::new();
@@ -62,8 +63,7 @@ pub fn parse_placeholders(out: &str) -> (Vec<usize>, Vec<String>) {
 
     let mut placeholder = false;
     let mut current_num: usize = 0;
-    for char in out.chars() {
-        //TODO DONT WORKS WITH # IN FILENAMES
+    for char in output_template.chars() {
         if placeholder {
             if char.is_ascii_digit() {
                 current_num = 10 * current_num + (char as usize - '0' as usize);
