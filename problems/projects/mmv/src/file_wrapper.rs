@@ -21,7 +21,7 @@ pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {
     let re = Regex::new(regex).unwrap();
     let files = ScanDir::files().read(directory, |iter| {
         iter.filter(move |(entry, _)| {
-            println!("{}", entry.path().into_os_string().to_str().unwrap());
+            // println!("{}", entry.path().into_os_string().to_str().unwrap());
             re.is_match(entry.path().into_os_string().to_str().unwrap())
         })
         .map(|(entry, _)| entry.path())
