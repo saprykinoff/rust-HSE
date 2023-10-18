@@ -1,7 +1,4 @@
-#![allow(unused)]
-
 use std::path::PathBuf;
-
 
 #[derive(Debug)]
 pub enum MassMoveError {
@@ -10,6 +7,7 @@ pub enum MassMoveError {
     FileAlreadyExists(PathBuf, PathBuf),
     TemplateMismatch(usize, usize),
     NoFilesFound,
+    CaptureRegexError,
 }
 
 impl From<regex::Error> for MassMoveError {
