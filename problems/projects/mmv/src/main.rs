@@ -39,7 +39,9 @@ fn main() {
             println!("{:?}", err)
         }
         MassMoveError::FileAlreadyExists(old, new) => {
-            println!("Can not overwrite {old} -> {new}. Use -f for this")
+            let old_s= old.to_str().unwrap();
+            let new_s= new.to_str().unwrap();
+            println!("Can not overwrite {old_s} -> {new_s}. Use -f for this")
         }
         MassMoveError::TemplateMismatch(limit, found) => {
             println!("Wrong output template: found #{found} while max is #{limit}")
