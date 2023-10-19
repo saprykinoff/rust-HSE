@@ -9,6 +9,7 @@ use mmv_lib::errors::*;
 use mmv_lib::file_wrapper::*;
 use mmv_lib::parser::*;
 
+use mmv_lib::fill_in_output_pattern;
 use std::fs::File;
 use std::path::Path;
 use tempdir::TempDir;
@@ -21,53 +22,128 @@ fn create_files(tmp: &TempDir, files: Vec<&str>) -> Result<(), io::Error> {
     Ok(())
 }
 
-fn check_files(tmp: &TempDir, files: Vec<&str>) -> Result<bool, io::Error> {
+fn check_files(tmp: &TempDir, files: Vec<&str>) -> bool {
     for file in files {
         let file_path = tmp.path().join(file);
         if !file_path.exists() {
-            return Ok(false);
+            return false;
         }
     }
-    Ok(true)
+    true
 }
 
 #[test]
 fn test_fill_in_output_pattern() {
-    let new_name = fill_in_output_pattern("playground/a.txt", r"playground\/(.*)\.(.*)", "playground/#2.#1");
-    assert_eq!(new_name, "playground/txt.a");
+    assert_eq!(
+        fill_in_output_pattern(
+            "playground/a.txt",
+            r"playground\/(.*)\.(.*)",
+            "playground/#2.#1"
+        )
+        .ok(),
+        Some(String::from("playground/txt.a"))
+    );
+    assert_eq!(
+        fill_in_output_pattern(
+            "playground/a.txt",
+            r"playground\/(.*)\.(.*)",
+            "playground/#1.#1"
+        )
+        .ok(),
+        Some(String::from("playground/a.a"))
+    );
+    assert_eq!(
+        fill_in_output_pattern(
+            "playground/a.txt",
+            r"playground\/(.*)\.(.*)",
+            "playground/#2.#2"
+        )
+        .ok(),
+        Some(String::from("playground/txt.txt"))
+    );
+    let err = fill_in_output_pattern(
+        "playground/a.txt",
+        r"playground\/(.*)\.(.*)",
+        "playground/#3.#2",
+    );
+    assert!(err.is_err());
+    let err = err.err().unwrap();
+    match err {
+        MassMoveError::TemplateMismatch(_, _) => {}
+        _ => {
+            assert!(false);
+        }
+    }
 }
+
 #[test]
 fn test_select_directory_name() {
-    assert_eq!(select_directory_name(&PathBuf::from("a/b/c")), Ok(PathBuf::from("a/b")));
-    assert_eq!(select_directory_name(&PathBuf::from("a")), Ok(PathBuf::from("")));
-    assert_eq!(select_directory_name(&PathBuf::from("/")), Err(PathBuf::from("a/b")));
+    assert_eq!(
+        select_directory_name(&PathBuf::from("a/b/c")).ok(),
+        Some(PathBuf::from("a/b"))
+    );
+    assert_eq!(
+        select_directory_name(&PathBuf::from("a")).ok(),
+        Some(PathBuf::from(""))
+    );
+    let err = select_directory_name(&PathBuf::from("/"));
+    assert!(err.is_err());
+    let err = err.err().unwrap();
+    match err {
+        MassMoveError::TemplateWithoutFilename => {}
+        _ => {
+            assert!(false);
+        }
+    }
 }
+
 #[test]
-fn test_get_matched_filenames() {}
+fn test_get_matched_filenames() {
+    let files = vec!["a.bat", "b.bat", "a.txt", "b.txt", "aboba.txt", "boba"];
+    let tmp_dir = TempDir::new("move_test").unwrap();
+    create_files(&tmp_dir, files);
+    let path = tmp_dir.path().to_path_buf();
+    assert_eq!(
+        get_matched_filenames(&path, &build_regex("a.*")).sort(),
+        vec![PathBuf::from("a.bat"), PathBuf::from("a.txt")].sort()
+    );
+    assert_eq!(
+        get_matched_filenames(&path, &build_regex("*a.*")).sort(),
+        vec![
+            PathBuf::from("a.bat"),
+            PathBuf::from("a.txt"),
+            PathBuf::from("aboba.txt")
+        ]
+            .sort()
+    );
+    assert_eq!(
+        get_matched_filenames(&path, &build_regex("*a*")).sort(),
+        vec![
+            PathBuf::from("a.bat"),
+            PathBuf::from("a.txt"),
+            PathBuf::from("aboba.txt"),
+            PathBuf::from("boba")
+        ]
+            .sort()
+    );
+}
+
 #[test]
-fn test_move_file() {
+fn test_move_file_success() {
     let tests = vec![
         (
             vec!["aboba.txt"],
-            ("aboba.txt", "boba.txt", false, None),
+            ("aboba.txt", "boba.txt", false),
             vec!["boba.txt"],
         ),
         (
             vec!["aboba.txt", "boba.txt"],
-            ("aboba.txt", "boba.txt", true, None),
+            ("aboba.txt", "boba.txt", true),
             vec!["boba.txt"],
         ),
         (
             vec!["aboba.txt", "boba.txt"],
-            (
-                "aboba.txt",
-                "boba.txt",
-                false,
-                Some(MassMoveError::FileAlreadyExists(
-                    PathBuf::from("aboba.txt"),
-                    PathBuf::from("boba.txt"),
-                )),
-            ),
+            ("aboba.txt", "boba.txt", false),
             vec!["boba.txt"],
         ),
     ];
@@ -77,12 +153,28 @@ fn test_move_file() {
         let old = tmp_dir.path().join(Path::new(params.0));
         let new = tmp_dir.path().join(Path::new(params.1));
         let force = params.2;
-        let err = params.3;
-        let res = move_file(old.to_str().unwrap(), new.to_str().unwrap(), force);
-        assert_eq!(res.err(), err);
-        assert!(check_files(&tmp_dir, after).unwrap());
+        move_file(old.to_str().unwrap(), new.to_str().unwrap(), force);
+        assert!(check_files(&tmp_dir, after));
     }
 }
+
+#[test]
+fn test_move_file_failed() {
+    let tmp_dir = TempDir::new("move_test_fail").unwrap();
+    create_files(&tmp_dir, vec!["aboba.txt", "boba.txt"]);
+    let old = tmp_dir.path().join(Path::new("aboba.txt"));
+    let new = tmp_dir.path().join(Path::new("boba.txt"));
+    let err = move_file(old.to_str().unwrap(), new.to_str().unwrap(), false);
+    assert!(err.is_err());
+    let err = err.err().unwrap();
+    match err {
+        MassMoveError::FileAlreadyExists(_, _) => {}
+        _ => {
+            assert!(false)
+        }
+    }
+}
+
 #[test]
 fn test_build_regex() {
     assert_eq!(build_regex("aboba*"), String::from("^aboba(.*)$"));
@@ -95,8 +187,23 @@ fn test_build_regex() {
         String::from(r"^and\/even\.\[(.*)\]$")
     );
 }
+
 #[test]
-fn test_capture_regex_matches() {}
+fn test_capture_regex_matches() {
+    assert_eq!(
+        capture_regex_matches(r"path\/to\/file\.(.*)", "path/to/file.dot").unwrap(),
+        vec![String::from("dot")]
+    );
+    assert_eq!(
+        capture_regex_matches(r"path\/to\/(.*)\.(.*)", "path/to/file.dot").unwrap(),
+        vec![String::from("file"), String::from("dot")]
+    );
+    assert_eq!(
+        capture_regex_matches(r"path\/to\/fi(.*)\.d(.*)", "path/to/file.dot").unwrap(),
+        vec![String::from("le"), String::from("ot")]
+    );
+}
+
 #[test]
 fn test_parse_placeholders() {
     assert_eq!(
