@@ -2,11 +2,11 @@ pub mod errors;
 pub mod file_wrapper;
 pub mod parser;
 
-use std::path::{Path, PathBuf};
 use crate::errors::MassMoveError;
 use crate::file_wrapper::{get_matched_filenames, move_file, select_directory_name};
 use crate::parser::{build_regex, capture_regex_matches};
 use parser::parse_placeholders;
+use std::path::PathBuf;
 
 /// Selects regex groups captures from [`filename`] using [`regex`]
 /// Fills in this captures in [`output_template`] and returns the result
