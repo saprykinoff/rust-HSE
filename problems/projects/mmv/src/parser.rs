@@ -3,10 +3,11 @@ use regex::Regex;
 use std::ops::Index;
 
 /// Checks if [`checked_char`] should be escaped in regex
-///
-/// #Example
-/// assert!(!escape_char('a'))
-/// assert!(escape_char('['))
+/// # Arguments
+/// * `checked_char` - char to check
+/// # Examples
+/// assert!(!escape_char('a'));
+/// assert!(escape_char('['));
 ///
 fn escape_char(checked_char: char) -> bool {
     let escape = r"\[]()^$.|?+/";
@@ -20,10 +21,14 @@ fn escape_char(checked_char: char) -> bool {
 
 /// Builds regex that meet the [`file_pattern`] .
 /// Uses regex groups to capture data.
-///
-/// #Example
-/// let regex = build_regex("path/to/file*.*")
-/// assert_eq!(regex, r"^path\/to\/file(.*)\.(.*)$")
+/// # Arguments
+/// * `file_pattern` - initial pattern
+/// # Examples
+/// ```
+/// use mmv_lib::parser::build_regex;
+/// let regex = build_regex("path/to/file*.*");
+/// assert_eq!(regex, r"^path\/to\/file(.*)\.(.*)$");
+/// ```
 ///
 pub fn build_regex(file_pattern: &str) -> String {
     let mut result = String::from('^');
@@ -49,9 +54,16 @@ pub fn build_regex(file_pattern: &str) -> String {
 /// Returns [`MassMoveError::CaptureRegexError`] if filename doesn't match with the [`regex`] template
 /// Otherwise returns Vec of matched groups
 ///
-/// #Example
+/// # Arguments
+/// * `regex` - regex
+/// * `filename` - string where matches
+///
+/// # Examples
+/// ```
+/// use mmv_lib::parser::capture_regex_matches;
 /// let captures = capture_regex_matches(r"(.*)_(.*)", "ab_c").unwrap();
-/// assert_eq!("ab", "c");
+/// assert_eq!(captures, vec![String::from("ab"), String::from("c")]);
+/// ```
 ///
 ///
 pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>, MassMoveError> {
@@ -68,11 +80,16 @@ pub fn capture_regex_matches(regex: &str, filename: &str) -> Result<Vec<String>,
 
 /// Devides [`output_pattern`] by placeholders.
 /// Returns numbers of placeholder and splitted strings.
+/// # Arguments
+/// * `output_template` - string to split
 ///
-/// #Example
-/// let (placeholders, strings) = parse_placeholders("a#2, b#10")
-/// assert_eq!(placeholders, vec! ("a", ", b", ""))
-/// assert_eq!(strings , vec! (2, 10))
+/// # Examples
+/// ```
+/// use mmv_lib::parser::parse_placeholders;
+/// let (placeholders, strings) = parse_placeholders("a#2, b#10");
+/// assert_eq!(placeholders, vec! ("a", ", b", ""));
+/// assert_eq!(strings , vec! (2, 10));
+/// ```
 ///
 pub fn parse_placeholders(output_template: &str) -> (Vec<usize>, Vec<String>) {
     let mut placeholders = Vec::new();

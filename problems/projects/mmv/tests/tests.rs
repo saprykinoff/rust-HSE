@@ -153,7 +153,7 @@ fn test_move_file_success() {
         let old = tmp_dir.path().join(Path::new(params.0));
         let new = tmp_dir.path().join(Path::new(params.1));
         let force = params.2;
-        move_file(old.to_str().unwrap(), new.to_str().unwrap(), force);
+        move_file(old.as_path(), new.as_path(), force);
         assert!(check_files(&tmp_dir, after));
     }
 }
@@ -164,7 +164,7 @@ fn test_move_file_failed() {
     create_files(&tmp_dir, vec!["aboba.txt", "boba.txt"]);
     let old = tmp_dir.path().join(Path::new("aboba.txt"));
     let new = tmp_dir.path().join(Path::new("boba.txt"));
-    let err = move_file(old.to_str().unwrap(), new.to_str().unwrap(), false);
+    let err = move_file(old.as_path(), new.as_path(), false);
     assert!(err.is_err());
     let err = err.err().unwrap();
     match err {
