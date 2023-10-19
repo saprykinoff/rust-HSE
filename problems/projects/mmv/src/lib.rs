@@ -71,7 +71,8 @@ pub fn mass_move(
         let new_filename = fill_in_output_pattern(&filename, &regex, output_pattern_str)?;
         print!("Moving \"{filename}\" -> \"{new_filename}\" ...");
 
-        if let Err(error) = move_file(&Path::new(&filename), &Path::new(&new_filename), force_mode) {
+        if let Err(error) = move_file(&Path::new(&filename), &Path::new(&new_filename), force_mode)
+        {
             println!("Error");
             return Err(error);
         }

@@ -114,7 +114,7 @@ fn test_get_matched_filenames() {
             PathBuf::from("a.txt"),
             PathBuf::from("aboba.txt")
         ]
-            .sort()
+        .sort()
     );
     assert_eq!(
         get_matched_filenames(&path, &build_regex("*a*")).sort(),
@@ -124,7 +124,7 @@ fn test_get_matched_filenames() {
             PathBuf::from("aboba.txt"),
             PathBuf::from("boba")
         ]
-            .sort()
+        .sort()
     );
 }
 
