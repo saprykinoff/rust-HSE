@@ -12,9 +12,17 @@ use std::path::{Path, PathBuf};
 /// Fills in this captures in [`output_template`] and returns the result
 /// Returns [`MassMoveError::TemplateMismatch`] if number of placeholders exceed number of stars
 ///
-/// #Example
-///let new_name = fill_in_output_pattern("playground/a.txt", r"playground\/(.*)\.(.*)", "playground/#2.#1");
+/// # Arguments
+/// * `filename` - name of old file
+/// * `regex` - regex to capture match groups
+/// * `output_template` - template to paste match groups
+///
+/// # Example
+///```
+/// use mmv_lib::fill_in_output_pattern;
+/// let new_name = fill_in_output_pattern("playground/a.txt", r"playground\/(.*)\.(.*)", "playground/#2.#1");
 /// assert_eq!(new_name, "playground/txt.a")
+/// ```
 ///
 ///
 pub fn fill_in_output_pattern(
@@ -44,8 +52,16 @@ pub fn fill_in_output_pattern(
 /// Moves all files that meet [`input_pattern`] into files according [`output_pattern`] with replacement of placeholders
 /// If [`force_mode`] is true overwrites existing files
 ///
-/// #Example
-/// mass_move("playground/*.*", "playground/#2.#1") // Swap filename and extension for files in playground dir
+/// # Arguments
+/// * `input_pattern` - files source template
+/// * `output_pattern` - files destination template
+/// * `force_mode` - toggle overwriting files
+/// # Examples
+/// ```
+/// use std::path::PathBuf;
+/// use mmv_lib::mass_move;
+/// mass_move(PathBuf::from("playground/*.*"), PathBuf::from("playground/#2.#1"), false); // Swaps filename and extension for files in playground dir
+/// ```
 ///
 pub fn mass_move(
     input_pattern: PathBuf,
