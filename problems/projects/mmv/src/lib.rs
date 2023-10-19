@@ -9,6 +9,12 @@ use parser::parse_placeholders;
 
 /// Selects regex groups captures from [`filename`] using [`regex`]
 /// Fills in this captures in [`output_template`] and returns the result
+///
+/// #Example
+/// let new_name = fill_in_output_pattern("playground/a.txt", "playground\/(.*)\.(.*)", "playground/#2.#1);
+/// assert_eq!(new_name, "playground/txt.a)
+///
+///
 pub fn fill_in_output_pattern(
     filename: &str,
     regex: &str,
@@ -35,6 +41,10 @@ pub fn fill_in_output_pattern(
 
 /// Moves all files that meet [`input_pattern`] into files according [`output_pattern`] with replacement of placeholders
 /// If [`force_mode`] is true overwrites existing files
+///
+/// #Example
+/// mass_move("playground/*.*", "playground/#2.#1") // Swap filename and extension for files in playground dir
+///
 pub fn mass_move(
     input_pattern: &str,
     output_pattern: &str,

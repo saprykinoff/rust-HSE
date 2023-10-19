@@ -4,8 +4,12 @@ use scan_dir::ScanDir;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-///Splits directory name and file name from path.
-///Returns pair (directory name, file name)
+/// Splits directory name and file name from path.
+/// Returns pair (directory name, file name)
+///
+/// #Example
+/// assert_eq!(split_directory_and_file_names("path/to/file"), ("path/to", "file"))
+///
 pub fn split_directory_and_file_names(path: &str) -> (String, String) {
     let res = path.split_once('/');
     if res.is_none() {
@@ -17,6 +21,11 @@ pub fn split_directory_and_file_names(path: &str) -> (String, String) {
 }
 
 ///Scans directory and returns names of files in directory that satisfy regex pattern
+///
+/// #Example
+/// assert_eq!(get_matched_filenames(".", "*.txt"), vec!(PathBuf::from("a.txt"), PathBuf::from("b.txt"))
+/// assert_eq!(get_matched_filenames(".", "a.*"), vec!(PathBuf::from("a.txt"), PathBuf::from("a.bat"))
+///
 pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {
     let re = Regex::new(regex).unwrap();
     let files = ScanDir::files().read(directory, |iter| {
@@ -34,8 +43,15 @@ pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {
     }
 }
 
-///Renames file from old_name to new_name.
-///Returns [`MassMoveError::FileAlreadyExists`] if a path [`new_name`]  is already present in the file system and [`force_mode`] is false
+/// Renames file from old_name to new_name.
+/// Returns [`MassMoveError::FileAlreadyExists`] if a path [`new_name`]  is already present in the file system and [`force_mode`] is false
+///
+/// #Example
+///
+/// assert!(move_file("a.txt", "a.bat", false).is_err());
+/// assert!(move_file("a.txt", "a.bat", true).is_ok());
+///
+///
 pub fn move_file(old_name: &str, new_name: &str, force_mode: bool) -> Result<(), MassMoveError> {
     //TODO replace to PathBuf
 
