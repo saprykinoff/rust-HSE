@@ -50,7 +50,6 @@ pub fn get_matched_filenames(directory: &PathBuf, regex: &str) -> Vec<PathBuf> {
 ///
 ///
 pub fn move_file(old_name: &Path, new_name: &Path, force_mode: bool) -> Result<(), MassMoveError> {
-
     if old_name == new_name {
         return Ok(());
     }
