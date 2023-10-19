@@ -10,14 +10,11 @@ use std::path::{Path, PathBuf};
 /// #Example
 /// assert_eq!(split_directory_and_file_names("path/to/file"), ("path/to", "file"))
 ///
-pub fn split_directory_and_file_names(path: &str) -> (String, String) {
-    let res = path.split_once('/');
-    if res.is_none() {
-        (String::from(""), String::from(path))
-    } else {
-        let (a, b) = res.unwrap();
-        (String::from(a), String::from(b))
-    }
+pub fn select_directory_name(path: &PathBuf) -> Result<PathBuf, MassMoveError> {
+    let Some(res) = path.parent() else {
+        return Err(MassMoveError::TemplateWithoutFilename);
+    };
+    Ok(res.to_path_buf())
 }
 
 ///Scans directory and returns names of files in directory that satisfy regex pattern
@@ -26,7 +23,7 @@ pub fn split_directory_and_file_names(path: &str) -> (String, String) {
 /// assert_eq!(get_matched_filenames(".", "*.txt"), vec!(PathBuf::from("a.txt"), PathBuf::from("b.txt"))
 /// assert_eq!(get_matched_filenames(".", "a.*"), vec!(PathBuf::from("a.txt"), PathBuf::from("a.bat"))
 ///
-pub fn get_matched_filenames(directory: &str, regex: &str) -> Vec<PathBuf> {
+pub fn get_matched_filenames(directory: &PathBuf, regex: &str) -> Vec<PathBuf> {
     let re = Regex::new(regex).unwrap();
     let files = ScanDir::files().read(directory, |iter| {
         iter.filter(move |(entry, _)| {

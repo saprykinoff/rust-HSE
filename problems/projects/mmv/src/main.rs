@@ -1,5 +1,7 @@
+use std::path::PathBuf;
 use clap::Parser;
 use mmv_lib;
+use mmv_lib::errors::MassMoveError;
 use mmv_lib::mass_move;
 
 /// Mass move utility analog on Rust
@@ -19,10 +21,22 @@ struct Args {
     force_mode: bool,
 }
 
+
 fn main() {
     let args = Args::parse();
-    let res = mass_move(&args.source, &args.destination, args.force_mode);
-    if res.is_err() {
-        println!("{:?}", res)
+    let res = mass_move(PathBuf::from(args.source), PathBuf::from(args.destination), args.force_mode);
+    let Some(err) = res.err() else  {
+        return;
+    };
+    match err {
+        MassMoveError::RegexError(err) => {println!("{:?}", err)}
+        MassMoveError::StdIoError(err) => {println!("{:?}", err)}
+        MassMoveError::FileAlreadyExists(old, new) => {println!("Can not overwrite {old} -> {new}. Use -f for this")}
+        MassMoveError::TemplateMismatch(limit, found) => {println!("Wrong output template: found #{found} while max is #{limit}")}
+        MassMoveError::NoFilesFound => {println!("No files found for source template")}
+        MassMoveError::CaptureRegexError => {println!("Can not capture matches from template")}
+        MassMoveError::TemplateWithoutFilename => {println!("Source should define files, not folders")}
+        MassMoveError::NonUTF8Symbol => {println!("Only UTF-8 symbols is supported")}
     }
+
 }
