@@ -23,3 +23,9 @@ impl From<std::io::Error> for MassMoveError {
         Self::StdIoError(value)
     }
 }
+
+impl PartialEq for MassMoveError {
+    fn eq(&self, other: &Self) -> bool {
+
+    }
+}

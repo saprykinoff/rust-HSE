@@ -39,8 +39,8 @@ fn main() {
             println!("{:?}", err)
         }
         MassMoveError::FileAlreadyExists(old, new) => {
-            let old_s= old.to_str().unwrap();
-            let new_s= new.to_str().unwrap();
+            let old_s = old.to_str().unwrap();
+            let new_s = new.to_str().unwrap();
             println!("Can not overwrite {old_s} -> {new_s}. Use -f for this")
         }
         MassMoveError::TemplateMismatch(limit, found) => {
