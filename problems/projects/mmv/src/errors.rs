@@ -8,6 +8,8 @@ pub enum MassMoveError {
     TemplateMismatch(usize, usize),
     NoFilesFound,
     CaptureRegexError,
+    TemplateWithoutFilename,
+    NonUTF8Symbol
 }
 
 impl From<regex::Error> for MassMoveError {
