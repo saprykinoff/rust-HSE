@@ -49,13 +49,12 @@ pub fn get_matched_filenames(directory: &PathBuf, regex: &str) -> Vec<PathBuf> {
 /// assert!(move_file("a.txt", "a.bat", true).is_ok());
 ///
 ///
-pub fn move_file(old_name: &str, new_name: &str, force_mode: bool) -> Result<(), MassMoveError> {
-    //TODO replace to PathBuf
+pub fn move_file(old_name: &Path, new_name: &Path, force_mode: bool) -> Result<(), MassMoveError> {
 
     if old_name == new_name {
         return Ok(());
     }
-    let write = (!Path::new(new_name).exists()) || force_mode;
+    let write = (!new_name.exists()) || force_mode;
     if write {
         fs::rename(old_name, new_name)?;
         Ok(())

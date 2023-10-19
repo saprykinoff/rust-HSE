@@ -6,10 +6,11 @@ use crate::errors::MassMoveError;
 use crate::file_wrapper::{get_matched_filenames, move_file, select_directory_name};
 use crate::parser::{build_regex, capture_regex_matches};
 use parser::parse_placeholders;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Selects regex groups captures from [`filename`] using [`regex`]
 /// Fills in this captures in [`output_template`] and returns the result
+/// Returns [`MassMoveError::TemplateMismatch`] if number of placeholders exceed number of stars
 ///
 /// #Example
 ///let new_name = fill_in_output_pattern("playground/a.txt", r"playground\/(.*)\.(.*)", "playground/#2.#1");
@@ -70,7 +71,7 @@ pub fn mass_move(
         let new_filename = fill_in_output_pattern(&filename, &regex, output_pattern_str)?;
         print!("Moving \"{filename}\" -> \"{new_filename}\" ...");
 
-        if let Err(error) = move_file(&filename, &new_filename, force_mode) {
+        if let Err(error) = move_file(&Path::new(&filename), &Path::new(&new_filename), force_mode) {
             println!("Error");
             return Err(error);
         }
