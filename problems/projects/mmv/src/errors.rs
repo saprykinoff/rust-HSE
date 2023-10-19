@@ -9,7 +9,7 @@ pub enum MassMoveError {
     NoFilesFound,
     CaptureRegexError,
     TemplateWithoutFilename,
-    NonUTF8Symbol
+    NonUTF8Symbol,
 }
 
 impl From<regex::Error> for MassMoveError {
