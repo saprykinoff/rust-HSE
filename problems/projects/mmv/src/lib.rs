@@ -12,8 +12,8 @@ use std::path::PathBuf;
 /// Fills in this captures in [`output_template`] and returns the result
 ///
 /// #Example
-/// let new_name = fill_in_output_pattern("playground/a.txt", "playground\/(.*)\.(.*)", "playground/#2.#1);
-/// assert_eq!(new_name, "playground/txt.a)
+///let new_name = fill_in_output_pattern("playground/a.txt", r"playground\/(.*)\.(.*)", "playground/#2.#1");
+/// assert_eq!(new_name, "playground/txt.a")
 ///
 ///
 pub fn fill_in_output_pattern(
