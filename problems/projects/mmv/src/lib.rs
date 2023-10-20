@@ -82,6 +82,7 @@ pub fn mass_move(
     if files.is_empty() {
         return Err(MassMoveError::NoFilesFound);
     }
+    let mut fin_res = Ok(());
     for file in files {
         let filename = file.into_os_string().into_string().unwrap();
         let new_filename = fill_in_output_pattern(&filename, &regex, output_pattern_str)?;
@@ -89,10 +90,10 @@ pub fn mass_move(
 
         if let Err(error) = move_file(&Path::new(&filename), &Path::new(&new_filename), force_mode)
         {
+            fin_res = Err(error);
             println!("Error");
-            return Err(error);
         }
         print!("Ok\n");
     }
-    Ok(())
+    fin_res
 }
