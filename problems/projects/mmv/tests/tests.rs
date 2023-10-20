@@ -9,7 +9,7 @@ use mmv_lib::errors::*;
 use mmv_lib::file_wrapper::*;
 use mmv_lib::parser::*;
 
-use mmv_lib::fill_in_output_pattern;
+use mmv_lib::{fill_in_output_pattern, mass_move};
 use std::fs::File;
 use std::path::Path;
 use tempdir::TempDir;
@@ -228,4 +228,33 @@ fn test_parse_placeholders() {
             vec![String::from("#ab"), String::from("ab"), String::from("ab")],
         )
     );
+}
+
+#[test]
+fn test_mass_move() {
+    let tmp_dir = TempDir::new("mass_move").unwrap();
+    create_files(&tmp_dir, vec!["aboba.txt", "boba.txt", "txt.baobab"]);
+    let res = mass_move(tmp_dir.path().join("*.*"), tmp_dir.path().join("#2.#1"), false);
+    assert!(res.is_ok());
+    assert!(check_files(&tmp_dir, vec!["txt.aboba", "txt.boba", "baobab.txt"]));
+
+    let res = mass_move(tmp_dir.path().join("*.boba"), tmp_dir.path().join("baobab#2.#1"), false);
+    assert!(check_files(&tmp_dir, vec!["txt.aboba", "txt.boba", "baobab.txt"]));
+    assert!(res.is_err());
+    match res.unwrap_err() {
+        MassMoveError::TemplateMismatch(_, _) =>{}
+        _ => {assert!(false);}
+    }
+
+    let res = mass_move(tmp_dir.path().join("*.boba"), tmp_dir.path().join("baobab.#1"), false);
+    assert!(check_files(&tmp_dir, vec!["txt.aboba", "txt.boba", "baobab.txt"]));
+    assert!(res.is_err());
+    match res.unwrap_err() {
+        MassMoveError::FileAlreadyExists(_, _) =>{}
+        _ => {assert!(false);}
+    }
+
+    let res = mass_move(tmp_dir.path().join("*.boba"), tmp_dir.path().join("baobab.#1"), true);
+    assert!(check_files(&tmp_dir, vec!["txt.aboba", "baobab.txt"]));
+    assert!(res.is_ok());
 }
