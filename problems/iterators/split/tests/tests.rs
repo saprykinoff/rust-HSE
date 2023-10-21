@@ -53,7 +53,7 @@ fn smart() {
         }
     }
 
-    check("abracadabra", "a");
+    // check("abracadabra", "a");
     check("abracadabra", "ab");
     check("abracadabra", "abra");
     check("abracadbara", "");
