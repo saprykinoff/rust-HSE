@@ -3,6 +3,7 @@ members = [
     # Problems
     "problems/tutorial/add",
     "problems/projects/mmv",
+    "problems/projects/kafka",
     "problems/basics/fibonacci",
     "problems/basics/palindrome",
     "problems/basics/prime_numbers",
