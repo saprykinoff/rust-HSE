@@ -25,6 +25,8 @@ members = [
 
     # Tools
     "tools/rover",
+    "tools/kafka_publisher",
+    "tools/kafka_subscriber",
 
     # Additional
     "",
