@@ -20,7 +20,10 @@ fn publish_message(stream: &mut TcpStream, topic_name: &str, message: &str) -> i
         topic_name, message
     );
 
-    stream.write_all(publish_command.as_bytes())?;
+    stream
+        .write_all(publish_command.as_bytes())
+        .expect("Not able to publish message");
+
     Ok(())
 }
 
@@ -62,11 +65,11 @@ fn main() -> io::Result<()> {
     let server_address = format!("{}:{}", address, port);
     let topic_name = matches.value_of("topic").unwrap();
 
-    let mut stream = TcpStream::connect(&server_address)?;
+    let mut stream = TcpStream::connect(&server_address)
+        .expect(format!("Not able to connect to {:?}", server_address).as_str());
 
-    println!("Connected to server at {}", server_address);
-
-    subscribe_to_topic(&mut stream, topic_name)?;
+    subscribe_to_topic(&mut stream, topic_name)
+        .expect(format!("Not able to subscribe to {:?}", topic_name).as_str());
 
     let mut i = 0;
     loop {
