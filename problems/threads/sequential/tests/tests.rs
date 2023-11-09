@@ -92,6 +92,7 @@ fn complex_test() {
     ])));
     let substrings = Arc::clone(&result);
     let f = move |thread: &Thread, elem: char| {
+        let tmp = thread.name();
         let thread_name = thread.name().unwrap().to_string();
         let mut data = substrings.lock().unwrap();
         data.get_mut(&thread_name).unwrap().push(elem);
