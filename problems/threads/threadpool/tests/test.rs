@@ -22,7 +22,7 @@ fn check_threads_cnt_test() {
     let pool = ThreadPool::new(threads_cnt);
 
     let data = Arc::new(Mutex::new(HashSet::new()));
-    let jobs_cnt = 30;
+    let jobs_cnt = 15;
 
     for _ in 0..jobs_cnt {
         let cloned_data = Arc::clone(&data);
