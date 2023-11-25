@@ -22,6 +22,8 @@ members = [
     "problems/iterators/split",
     "problems/threads/threadpool",
     "problems/threads/sequential",
+    "problems/net/roshambo",
+    "problems/net/chat",
 
     # Tools
     "tools/kafka_publisher",
