@@ -4,21 +4,18 @@ use std::net::TcpStream;
 use std::thread;
 use std::time::Duration;
 
-fn subscribe_to_topic(stream: &mut TcpStream, topic_name: &str) -> io::Result<()> {
-    let subscribe_command = format!(
-        "{{\"method\": \"subscribe\", \"topic\": \"{}\"}}\n",
+fn register_as_publisher(stream: &mut TcpStream, topic_name: &str) -> io::Result<()> {
+    let register_command = format!(
+        "{{\"method\": \"publish\", \"topic\": \"{}\"}}\n",
         topic_name
     );
 
-    stream.write_all(subscribe_command.as_bytes())?;
+    stream.write_all(register_command.as_bytes())?;
     Ok(())
 }
 
-fn publish_message(stream: &mut TcpStream, topic_name: &str, message: &str) -> io::Result<()> {
-    let publish_command = format!(
-        "{{\"method\": \"publish\", \"topic\": \"{}\", \"message\": \"{}\"}}\n",
-        topic_name, message
-    );
+fn publish_message(stream: &mut TcpStream, message: &str) -> io::Result<()> {
+    let publish_command = format!("{{\"message\": \"{}\"}}\n", message);
 
     stream
         .write_all(publish_command.as_bytes())
@@ -54,7 +51,7 @@ fn main() -> io::Result<()> {
                 .short('t')
                 .long("topic")
                 .value_name("TOPIC")
-                .help("Sets the topic to subscribe to")
+                .help("Sets the topic to publish to")
                 .required(true)
                 .takes_value(true),
         )
@@ -68,14 +65,14 @@ fn main() -> io::Result<()> {
     let mut stream = TcpStream::connect(&server_address)
         .expect(format!("Not able to connect to {:?}", server_address).as_str());
 
-    subscribe_to_topic(&mut stream, topic_name)
-        .expect(format!("Not able to subscribe to {:?}", topic_name).as_str());
+    register_as_publisher(&mut stream, topic_name)
+        .expect(format!("Not able to register as publisher to {:?}", topic_name).as_str());
 
     let mut i = 0;
     loop {
         let message = format!("Hello {} from Rust publisher!", i);
         i += 1;
-        publish_message(&mut stream, topic_name, &message)?;
+        publish_message(&mut stream, &message)?;
         println!("Published message: {}", message);
         thread::sleep(Duration::from_secs(1));
     }
