@@ -7,6 +7,7 @@ jobs:
     name: Test solution and report results
     runs-on: self-hosted
     container: cr.yandex/crpn2tbct0clis87o7vk/ci-image
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v3
