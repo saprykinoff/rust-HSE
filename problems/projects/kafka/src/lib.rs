@@ -2,6 +2,12 @@
 
 pub mod errors;
 
+use crate::errors::KafkaError;
+use log::{debug, error, info};
+use serde::Deserialize;
+use std::fmt::format;
+use std::io::Write;
+use std::time::Duration;
 use std::{
     collections::HashMap,
     io::Read,
@@ -9,13 +15,6 @@ use std::{
     sync::{Arc, Mutex},
     thread,
 };
-use std::fmt::format;
-use std::io::Write;
-use std::time::Duration;
-use crate::errors::KafkaError;
-use log::{error, debug, info};
-use serde::Deserialize;
-
 
 #[derive(Deserialize, Debug)]
 pub struct ReceivedJSON {
@@ -56,7 +55,6 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
     }
 }
 
-
 type TopicList = Arc<Mutex<Vec<TcpStream>>>;
 
 fn notify(stream: &mut TcpStream, s: &str) {
@@ -67,17 +65,24 @@ fn notify(stream: &mut TcpStream, s: &str) {
 
 fn validate_json(r: &Result<ReceivedJSON, KafkaError>, stream: &mut TcpStream) -> bool {
     if r.is_err() {
-        if matches!(r.as_ref().unwrap_err(),KafkaError::DeserializationError(_)) {
+        if matches!(r.as_ref().unwrap_err(), KafkaError::DeserializationError(_)) {
             notify(stream, "received not valid json");
-            info!("Failed to parse message from {}, closing connection", stream.peer_addr().unwrap());
+            info!(
+                "Failed to parse message from {}, closing connection",
+                stream.peer_addr().unwrap()
+            );
         } else {
-            info!("Error with {}: {:?}", stream.peer_addr().unwrap(), r.as_ref().unwrap_err())
+            info!(
+                "Error with {}: {:?}",
+                stream.peer_addr().unwrap(),
+                r.as_ref().unwrap_err()
+            )
         }
     }
     r.is_ok()
 }
 
-fn publisher_handler(mut stream: TcpStream,  topic_list: TopicList) {
+fn publisher_handler(mut stream: TcpStream, topic_list: TopicList) {
     loop {
         let msg = read_json(&mut stream);
         if !validate_json(&msg, &mut stream) {
@@ -93,15 +98,17 @@ fn publisher_handler(mut stream: TcpStream,  topic_list: TopicList) {
         for subscriber in guard.iter_mut() {
             let message = format!(r#"{{"message": {msg}}}"#) + "\n";
             subscriber.write(message.as_bytes());
-            info!("{} -> {}: {}", stream.peer_addr().unwrap(), subscriber.peer_addr().unwrap(), message);
+            info!(
+                "{} -> {}: {}",
+                stream.peer_addr().unwrap(),
+                subscriber.peer_addr().unwrap(),
+                message
+            );
         }
-
-
     }
 }
 
-
-fn subscriber_handler(mut stream: TcpStream, ) {
+fn subscriber_handler(mut stream: TcpStream) {
     loop { //to keep connection alive
     }
 }
@@ -111,7 +118,6 @@ pub fn run(ip: IpAddr, port: u16) {
     info!("Start kafka server on address {ip}:{port}");
     let mut topics_map: HashMap<String, TopicList> = HashMap::new();
     for stream in listener.incoming() {
-
         let Ok(mut stream) = stream else {
             error!("Declined connection: {:?}", stream.err().unwrap());
             continue;
@@ -132,7 +138,7 @@ pub fn run(ip: IpAddr, port: u16) {
         let topic = reg.topic.unwrap();
         let method = reg.method.unwrap();
         if !topics_map.contains_key(&topic) {
-            let v:Vec<TcpStream> = Vec::new();
+            let v: Vec<TcpStream> = Vec::new();
             topics_map.insert(topic.clone(), Arc::new(Mutex::new(v)));
         }
 
