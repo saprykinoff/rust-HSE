@@ -2,17 +2,18 @@
 pub mod errors;
 
 use std::{
-    io::{Error, ErrorKind, Read, Write},
+    collections::HashMap,
+    io::Read,
     net::{IpAddr, TcpListener, TcpStream},
     sync::{Arc, Mutex},
     thread,
 };
-
+use std::io::Write;
+use std::time::Duration;
 use crate::errors::KafkaError;
-use log::error;
-use log::info;
-use serde::de::Unexpected::Str;
+use log::{error, debug, info};
 use serde::Deserialize;
+
 
 #[derive(Deserialize, Debug)]
 pub struct ReceivedJSON {
@@ -33,7 +34,7 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
                     balance += 1;
                 }
                 if (balance == 0) {
-                    KafkaError::JsonParseError(String::from("Message should start with \"{\""));
+                    return Err(KafkaError::JsonParseError(String::from("Message should start with \"{\"")));
                 }
                 if (buf[0] == b'}') {
                     balance -= 1;
@@ -52,15 +53,63 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
     }
 }
 
-pub fn user_register(stream: &mut TcpStream) -> Result<String, KafkaError> {
-    let reg = read_json(stream)?;
-    reg.method.ok_or(KafkaError::RegistrationIsRequired)
+
+type TopicList = Mutex<Vec<TcpStream>>;
+type TopicsMap = Mutex<HashMap<String, Arc<TopicList>>>;
+
+
+fn publisher_handler(mut stream:  TcpStream, topic: String) {
+    loop {
+
+    }
 }
 
-fn publisher_handler(stream: &mut TcpStream) {}
+fn subscriber_handler(mut stream: TcpStream, topic: String) {
+    loop {
 
-fn subscriber_handler(stream: &TcpStream) {}
+    }
+}
 
 pub fn run(ip: IpAddr, port: u16) {
+
     let listener = TcpListener::bind(format!("{ip}:{port}")).unwrap();
+    info!("Start kafka server on address {ip}:{port}");
+    for stream in listener.incoming() {
+        debug!("New connection");
+        let Ok(mut stream) = stream else {
+            error!("Declined connection: {:?}", stream.err().unwrap());
+            continue
+        };
+
+        let client_ip = stream.peer_addr().unwrap();
+        debug!("Connected {client_ip}");
+        let reg = read_json(&mut stream);
+        debug!("Received: {:?}", reg);
+        let Ok(reg) = reg else {
+            if matches!(reg.as_ref().unwrap_err(),KafkaError::JsonParseError(_)) ||
+                matches!(reg.as_ref().unwrap_err(),KafkaError::DeserializationError(_))  {
+                stream.write(r#"{"error": "received not valid json"}"#.as_bytes());
+                thread::sleep(Duration::from_millis(100)); // connection is closing before message being sent
+                info!("Failed to parse message from {client_ip}, closing connection")
+            }
+            continue;
+        };
+        if (reg.method.is_none() || reg.topic.is_none()) {
+            info!("To register {client_ip} should provide method and topic");
+        }
+        let topic = reg.topic.unwrap();
+        let method = reg.method.unwrap();
+
+        if method == String::from("publisher") {
+            debug!("{client_ip} now is publisher in {}", topic);
+            thread::spawn(move || {
+                publisher_handler(stream, topic);
+            });
+        } else if method == String::from("subscriber")  {
+            debug!("{client_ip} now is subscriber in {}", topic);
+            thread::spawn(move || {
+                subscriber_handler(stream, topic);
+            });
+        }
+    }
 }

@@ -16,7 +16,7 @@ struct Opts {
 
 fn main() {
     TermLogger::init(
-        LevelFilter::Info,
+        LevelFilter::Debug,
         Config::default(),
         TerminalMode::Stderr,
         ColorChoice::Auto,
