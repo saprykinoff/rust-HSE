@@ -116,6 +116,7 @@ fn subscriber_handler(mut stream: TcpStream) {
 pub fn run(ip: IpAddr, port: u16) {
     let Ok(listener) = TcpListener::bind(format!("{ip}:{port}")) else {
         info!("Port is busy");
+        return;
     };
     info!("Start kafka server on address {ip}:{port}");
     let mut topics_map: HashMap<String, TopicList> = HashMap::new();
