@@ -4,7 +4,7 @@ pub enum KafkaError {
     IoError(std::io::Error),
     DeserializationError(serde_json::error::Error),
     JsonParseError(String),
-    RegistrationIsRequired
+    RegistrationIsRequired,
 }
 
 impl From<std::io::Error> for KafkaError {

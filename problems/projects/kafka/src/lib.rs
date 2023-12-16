@@ -1,7 +1,6 @@
 #![allow(unused)]
 pub mod errors;
 
-
 use std::{
     io::{Error, ErrorKind, Read, Write},
     net::{IpAddr, TcpListener, TcpStream},
@@ -9,11 +8,11 @@ use std::{
     thread,
 };
 
-use log::info;
+use crate::errors::KafkaError;
 use log::error;
+use log::info;
 use serde::de::Unexpected::Str;
 use serde::Deserialize;
-use crate::errors::KafkaError;
 
 #[derive(Deserialize, Debug)]
 pub struct ReceivedJSON {
@@ -23,7 +22,7 @@ pub struct ReceivedJSON {
 }
 
 pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
-    let mut json:Vec<u8> = Vec::new();
+    let mut json: Vec<u8> = Vec::new();
     let mut buf = [0u8; 1];
     let mut balance = 0;
     loop {
@@ -46,14 +45,10 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
             Err(_) => {}
         }
     }
-    let req : Result<ReceivedJSON, _> = serde_json::from_slice(json.as_slice());
-    match req  {
-        Ok(x) => {
-            Ok(x)
-        }
-        Err(err) => {
-            Err(KafkaError::DeserializationError(err))
-        }
+    let req: Result<ReceivedJSON, _> = serde_json::from_slice(json.as_slice());
+    match req {
+        Ok(x) => Ok(x),
+        Err(err) => Err(KafkaError::DeserializationError(err)),
     }
 }
 
@@ -65,7 +60,6 @@ pub fn user_register(stream: &mut TcpStream) -> Result<String, KafkaError> {
 fn publisher_handler(stream: &mut TcpStream) {}
 
 fn subscriber_handler(stream: &TcpStream) {}
-
 
 pub fn run(ip: IpAddr, port: u16) {
     let listener = TcpListener::bind(format!("{ip}:{port}")).unwrap();

@@ -21,7 +21,7 @@ fn main() {
         TerminalMode::Stderr,
         ColorChoice::Auto,
     )
-        .unwrap();
+    .unwrap();
 
     let opts = Opts::parse();
     kafka_lib::run(opts.ip, opts.port);
