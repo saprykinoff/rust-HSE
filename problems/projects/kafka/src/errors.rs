@@ -5,7 +5,6 @@ pub enum KafkaError {
     PortIsBusy,
     IoError(std::io::Error),
     DeserializationError(serde_json::error::Error),
-    JsonParseError(String),
 }
 
 impl From<std::io::Error> for KafkaError {
