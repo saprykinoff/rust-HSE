@@ -95,8 +95,8 @@ fn publisher_handler(mut stream: TcpStream, topic_list: TopicList) {
         };
         info!("Received from {}: \"{}\"", stream.peer_addr().unwrap(), msg);
         let mut guard = topic_list.lock().unwrap();
+        let message = format!(r#"{{"message": {msg}}}"#) + "\n";
         for subscriber in guard.iter_mut() {
-            let message = format!(r#"{{"message": {msg}}}"#) + "\n";
             subscriber.write(message.as_bytes());
             info!(
                 "{} -> {}: {}",
@@ -114,7 +114,9 @@ fn subscriber_handler(mut stream: TcpStream) {
 }
 
 pub fn run(ip: IpAddr, port: u16) {
-    let listener = TcpListener::bind(format!("{ip}:{port}")).unwrap();
+    let Ok(listener) = TcpListener::bind(format!("{ip}:{port}")) else {
+        info!("Port is busy");
+    };
     info!("Start kafka server on address {ip}:{port}");
     let mut topics_map: HashMap<String, TopicList> = HashMap::new();
     for stream in listener.incoming() {
