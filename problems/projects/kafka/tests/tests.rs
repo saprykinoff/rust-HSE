@@ -3,7 +3,7 @@
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
 use std::result;
-use kafka_lib::{read_json, ReceivedJSON};
+use kafka_lib::{read_json, ReceivedJSON, user_register};
 use kafka_lib::errors::KafkaError;
 
 fn get_stream_with_message(msg: &str) -> TcpStream {
@@ -79,4 +79,28 @@ fn test_read_json_all() {
 }
 
 
+#[test]
+fn test_user_register() {
+    let mut stream = get_stream_with_message(
+        r#"{"method": "subscriber", "topic": "topic_name"}"#
+    );
+    let res = user_register(&mut stream);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap(), String::from("subscriber"));
+
+    let mut stream = get_stream_with_message(
+        r#"{"method": "publisher", "topic": "topic_name"}"#
+    );
+    let res = user_register(&mut stream);
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap(), String::from("publisher"));
+
+    let mut stream = get_stream_with_message(
+        r#"{"mesage": "aboba"}"#
+    );
+
+    let res = user_register(&mut stream);
+    assert!(res.is_err());
+
+}
 

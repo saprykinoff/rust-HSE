@@ -57,9 +57,9 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
     }
 }
 
-pub fn user_register(stream: &mut TcpStream) -> Result<bool, KafkaError> {
+pub fn user_register(stream: &mut TcpStream) -> Result<String, KafkaError> {
     let reg = read_json(stream)?;
-    Ok(true)
+    reg.method.ok_or(KafkaError::RegistrationIsRequired)
 }
 
 fn publisher_handler(stream: &mut TcpStream) {}
