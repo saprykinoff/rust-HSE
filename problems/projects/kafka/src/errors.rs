@@ -2,7 +2,8 @@
 pub enum KafkaError {
     PortIsBusy,
     IoError(std::io::Error),
-    JsonError(serde_json::error::Error),
+    DeserializationError(serde_json::error::Error),
+    JsonParseError(String)
 }
 
 impl From<std::io::Error> for KafkaError {
@@ -13,6 +14,6 @@ impl From<std::io::Error> for KafkaError {
 
 impl From<serde_json::error::Error> for KafkaError {
     fn from(value: serde_json::error::Error) -> Self {
-        Self::JsonError(value)
+        Self::DeserializationError(value)
     }
 }
