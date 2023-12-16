@@ -1,3 +1,7 @@
+
+use kafka_lib;
+
 fn main() {
-    println!("Hello, world!");
+    kafka_lib::run();
+
 }
