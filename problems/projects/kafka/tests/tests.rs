@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use kafka_lib::errors::KafkaError;
-use kafka_lib::{read_json, user_register, ReceivedJSON};
+use kafka_lib::{read_json, ReceivedJSON};
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
 use std::result;
