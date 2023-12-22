@@ -23,6 +23,26 @@ pub struct ReceivedJSON {
     pub message: Option<String>,
 }
 
+
+/// Function that read `ReceivedJSON` from [`stream`].
+///
+/// # Arguments
+/// `stream`- strem to read
+///
+/// # Examples
+/// ```
+/// use std::net::{TcpStream, TcpListener};
+/// use kafka_lib::{read_json, ReceivedJSON};
+/// use std::io::Write;
+/// let listener = TcpListener::bind("127.0.0.1:5343").unwrap();
+/// let mut sender = TcpStream::connect("127.0.0.1:5343").unwrap();
+/// sender.write_all(r#"{"message" : "aboba"}"#.as_bytes());
+/// let mut stream = listener.accept().unwrap().0;
+/// let recv = read_json(&mut stream).unwrap();
+/// assert_eq!(recv.message, Some(String::from("aboba")));
+/// assert!(recv.method.is_none());
+/// assert!(recv.topic.is_none());
+/// ```
 pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
     let mut json: Vec<u8> = Vec::new();
     let mut buf = [0u8; 1];
@@ -59,11 +79,15 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
 
 type TopicList = Arc<Mutex<Vec<TcpStream>>>;
 
+
+/// Function to notify user about an error
 fn notify(stream: &mut TcpStream, s: &str) {
     let new_s = format!(r#"{{"error": {s}}}"#);
     stream.write(new_s.as_bytes());
     thread::sleep(Duration::from_millis(100)); // connection is closing before message being sent
 }
+
+/// Function to handle result and notify user if there is user-side error
 
 fn validate_json(r: &Result<ReceivedJSON, KafkaError>, stream: &mut TcpStream) -> bool {
     if r.is_err() {
@@ -114,6 +138,11 @@ fn keep_alive(mut stream: TcpStream) {
     loop { //to keep connection alive
     }
 }
+
+/// Kafka provides three main functions to its users:
+/// Publish and subscribe to streams of records
+/// Effectively store streams of records in the order in which records were generated
+/// Process streams of records in real time
 
 pub fn run(ip: IpAddr, port: u16) {
     let Ok(listener) = TcpListener::bind(format!("{ip}:{port}")) else {
