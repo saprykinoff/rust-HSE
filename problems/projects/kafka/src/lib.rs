@@ -45,7 +45,9 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
                     break;
                 }
             }
-            Err(_) => {}
+            Err(err) => {
+                return Err(KafkaError::IoError(err));
+            }
         }
     }
     let req: Result<ReceivedJSON, _> = serde_json::from_slice(json.as_slice());
@@ -95,7 +97,7 @@ fn publisher_handler(mut stream: TcpStream, topic_list: TopicList) {
         };
         info!("Received from {}: \"{}\"", stream.peer_addr().unwrap(), msg);
         let mut guard = topic_list.lock().unwrap();
-        let message = format!(r#"{{"message": {msg}}}"#) + "\n";
+        let message = format!(r#"{{"message": "{msg}"}}"#) + "\n";
         for subscriber in guard.iter_mut() {
             subscriber.write(message.as_bytes());
             info!(
@@ -108,7 +110,7 @@ fn publisher_handler(mut stream: TcpStream, topic_list: TopicList) {
     }
 }
 
-fn subscriber_handler(mut stream: TcpStream) {
+fn keep_alive(mut stream: TcpStream) {
     loop { //to keep connection alive
     }
 }
@@ -158,14 +160,10 @@ pub fn run(ip: IpAddr, port: u16) {
             guard.push(stream.try_clone().unwrap());
             drop(guard);
             thread::spawn(move || {
-                subscriber_handler(stream);
+                keep_alive(stream);
             });
         } else {
             info!("Unknown method {method}");
         }
     }
 }
-
-// {"method": "publish", "topic":"a"}
-// {"method": "subscribe", "topic":"b"}
-// {"message": "a"}
