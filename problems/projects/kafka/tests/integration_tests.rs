@@ -94,16 +94,23 @@ impl Client {
     fn start_publisher(server_addr: SocketAddr, topic: &str) -> std::io::Result<Self> {
         let mut conn = TcpStream::connect(server_addr)?;
         conn.write_all(format!("{{\"method\": \"publish\", \"topic\": \"{topic}\"}}").as_bytes());
-        Ok(Self { topic: String::from(topic), conn })
+        Ok(Self {
+            topic: String::from(topic),
+            conn,
+        })
     }
     fn start_subscriber(server_addr: SocketAddr, topic: &str) -> std::io::Result<Self> {
         let mut conn = TcpStream::connect(server_addr)?;
         conn.write_all(format!("{{\"method\": \"subscribe\", \"topic\": \"{topic}\"}}").as_bytes());
-        Ok(Self { topic: String::from(topic), conn })
+        Ok(Self {
+            topic: String::from(topic),
+            conn,
+        })
     }
 
     fn publish(&mut self, message: &str) -> std::io::Result<()> {
-        self.conn.write_all(format!("{{\"message\": \"{message} (topic: {})\"}}", self.topic).as_bytes())
+        self.conn
+            .write_all(format!("{{\"message\": \"{message} (topic: {})\"}}", self.topic).as_bytes())
     }
 
     fn expect_message(&mut self, expected: &str) {
@@ -193,8 +200,6 @@ fn test_publishers_subscribers() {
     sub3.expect_message("Hello from 2!");
     sub3.expect_message("Hello from 3!");
 }
-
-
 
 #[test]
 fn test_publishers_subscribers_multitopic() {

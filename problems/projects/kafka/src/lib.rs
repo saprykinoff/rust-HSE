@@ -23,7 +23,6 @@ pub struct ReceivedJSON {
     pub message: Option<String>,
 }
 
-
 /// Function that read `ReceivedJSON` from [`stream`].
 ///
 /// # Arguments
@@ -78,7 +77,6 @@ pub fn read_json(stream: &mut TcpStream) -> Result<ReceivedJSON, KafkaError> {
 }
 
 type TopicList = Arc<Mutex<Vec<TcpStream>>>;
-
 
 /// Function to notify user about an error
 fn notify(stream: &mut TcpStream, s: &str) {
