@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use kafka_lib::errors::KafkaError;
-use kafka_lib::{read_json, ReceivedJSON};
+use kafka_lib::{read_json, ReceivedJSON, AvailableMethods};
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
 use std::result;
@@ -25,7 +25,7 @@ fn test_read_json_empty() {
 
 #[test]
 fn test_read_json_corrupted() {
-    let mut stream = get_stream_with_message(r#"corrupted"#);
+    let mut stream = get_stream_with_message(r#"{corrupted}"#);
     let result = read_json(&mut stream);
 
     assert!(result.is_err());
@@ -35,16 +35,16 @@ fn test_read_json_corrupted() {
 fn test_read_json_publisher_register() {
     let mut stream = get_stream_with_message(r#"{"method": "publish", "topic": "topic_name"}"#);
     let result = read_json(&mut stream).unwrap();
-    assert_eq!(result.method, Some(String::from("publish")));
+    assert_eq!(result.method, Some(AvailableMethods::Publish));
     assert_eq!(result.topic, Some(String::from("topic_name")));
     assert!(result.message.is_none());
 }
 
 #[test]
 fn test_read_json_subscriber_register() {
-    let mut stream = get_stream_with_message(r#"{"method": "subscriber", "topic": "topic_name"}"#);
+    let mut stream = get_stream_with_message(r#"{"method": "subscribe", "topic": "topic_name"}"#);
     let result = read_json(&mut stream).unwrap();
-    assert_eq!(result.method, Some(String::from("subscriber")));
+    assert_eq!(result.method, Some(AvailableMethods::Subscribe));
     assert_eq!(result.topic, Some(String::from("topic_name")));
     assert!(result.message.is_none());
 }

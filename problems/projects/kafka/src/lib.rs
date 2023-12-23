@@ -1,10 +1,11 @@
 #![allow(unused)]
 
 pub mod errors;
+mod structures;
 
+pub use structures::{ReceivedJSON, AvailableMethods};
 use crate::errors::KafkaError;
 use log::{debug, error, info};
-use serde::Deserialize;
 use std::fmt::format;
 use std::io::Write;
 use std::time::Duration;
@@ -16,12 +17,6 @@ use std::{
     thread,
 };
 
-#[derive(Deserialize, Debug)]
-pub struct ReceivedJSON {
-    pub method: Option<String>,
-    pub topic: Option<String>,
-    pub message: Option<String>,
-}
 
 /// Function that read `ReceivedJSON` from [`stream`].
 ///
@@ -174,13 +169,13 @@ pub fn run(ip: IpAddr, port: u16) {
             topics_map.insert(topic.clone(), Arc::new(Mutex::new(v)));
         }
 
-        if method == String::from("publish") {
+        if method == AvailableMethods::Publish {
             info!("{client_ip} now is publisher in {}", topic);
             let topic_clone = Arc::clone(&topics_map[&topic]);
             thread::spawn(move || {
                 publisher_handler(stream, topic_clone);
             });
-        } else if method == String::from("subscribe") {
+        } else if method == AvailableMethods::Subscribe {
             info!("{client_ip} now is subscriber in {}", topic);
             let topic_clone = Arc::clone(&topics_map[&topic]);
             let mut guard = topic_clone.lock().unwrap();
@@ -189,8 +184,6 @@ pub fn run(ip: IpAddr, port: u16) {
             thread::spawn(move || {
                 keep_alive(stream);
             });
-        } else {
-            info!("Unknown method {method}");
         }
     }
 }
